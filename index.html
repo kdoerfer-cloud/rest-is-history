@@ -227,6 +227,11 @@ footer{max-width:var(--maxw);margin:0 auto;padding:1.5rem 1.25rem 3rem;font-fami
 mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1em}
 @media(max-width:640px){
   header h1{font-size:1.35rem}
+  /* group headers: title on its own row, meta beneath, so nothing squeezes */
+  .grphead{flex-wrap:wrap;row-gap:.35rem}
+  .gtitle{flex:1 1 calc(100% - 1.5rem)}
+  .grphead .pbar{margin-left:1.5rem}
+  .grphead .gmark{margin-left:auto}
   .tlcard{flex-wrap:wrap;gap:.3rem .6rem}
   .tlyear{min-width:0;font-size:.7rem;order:1;width:100%}
   .tlname{order:3;flex:1 1 100%}
@@ -515,6 +520,9 @@ function listHTML(list){
   if(!list.length)return '<div class="empty">No episodes match.</div>';
   return '<div class="eplist">'+list.map(epHTML).join("")+'</div>';}
 
+function epsOf(keys){
+  return (keys||[]).map(function(k){return BYKEY[k];}).filter(Boolean);}
+
 /* ------------------------------------------------------------------ grouping */
 function groupBy(list,fn){
   var m={},order=[];
@@ -525,33 +533,57 @@ function progressOf(list){
   var n=0;list.forEach(function(e){if(prog.listened[e.k])n++;});
   return {done:n,total:list.length,pct:list.length?Math.round(n*100/list.length):0};}
 
+function progressOfKeys(keys){
+  var n=0;keys.forEach(function(k){if(prog.listened[k])n++;});
+  return {done:n,total:keys.length,pct:keys.length?Math.round(n*100/keys.length):0};}
+
+function pnumText(p){return p.total>1?(p.done+"/"+p.total):(p.done?"heard":"1 ep");}
+
 function pbar(p){
   return (p.total>1?'<span class="pbar" title="'+p.done+' of '+p.total+' listened"><i style="width:'+
            p.pct+'%"></i></span>':"")+
-         '<span class="pnum">'+(p.total>1?p.done+"/"+p.total:(p.done?"heard":"1 ep"))+'</span>';}
+         '<span class="pnum">'+pnumText(p)+'</span>';}
 
-function grpHTML(id,title,sub,count,body,open){
+/* Group bodies are built only when the group is open. Rendering every episode
+   card of every group up front put >100k nodes in the document and made each
+   click rebuild all of them. GROUPS maps a group id to its episode keys so the
+   body can be filled on demand, and OPEN remembers what the reader expanded. */
+var GROUPS={},OPEN={};
+
+function grpHTML(id,title,sub,count,eps,body){
+  GROUPS[id]=eps.map(function(e){return e.k;});
+  var open=!!OPEN[id], lazy=(body==null);
+  var inner=lazy?(open?listHTML(eps):""):body;
   return '<section class="grp'+(open?" open":"")+'" data-grp="'+esc(id)+'">'+
     '<button class="grphead"><span class="arrow">▶</span>'+
     '<span class="gtitle">'+esc(title)+(sub?'<span class="gsub">'+esc(sub)+'</span>':'')+'</span>'+
     count+'<span class="gmark" role="button" tabindex="0" title="Mark every episode here listened / not listened">✓ all</span>'+
-    '</button><div class="gbody">'+body+'</div></section>';}
+    '</button><div class="gbody"'+((lazy&&!open)?' data-lazy="1"':'')+'>'+inner+'</div></section>';}
 
-function seriesGroups(list,openAll){
+function fillGroup(sec){
+  var body=sec.querySelector(".gbody");
+  if(!body||!body.hasAttribute("data-lazy"))return;
+  body.innerHTML=listHTML(epsOf(GROUPS[sec.dataset.grp]));
+  body.removeAttribute("data-lazy");}
+
+function seriesGroups(list){
   var g=groupBy(list,function(e){return e.s;});
+  var cacheMin={},cacheFirst={};
+  g.keys.forEach(function(k){
+    var A=g.map[k];
+    cacheMin[k]=Math.min.apply(null,A.map(function(x){return x.y0;}));
+    cacheFirst[k]=sorted(A)[0];});
   var keys=g.keys.slice().sort(function(a,b){
-    var A=g.map[a],B=g.map[b];
     if(state.sort.indexOf("hist")===0){
-      var d=Math.min.apply(null,A.map(function(x){return x.y0;}))-
-            Math.min.apply(null,B.map(function(x){return x.y0;}));
+      var d=cacheMin[a]-cacheMin[b];
       if(state.sort==="hist-desc")d=-d;
       if(d)return d;}
-    return sorted(A)[0]&&sorted(B)[0]?SORTS[state.sort](sorted(A)[0],sorted(B)[0]):0;});
+    return (cacheFirst[a]&&cacheFirst[b])?SORTS[state.sort](cacheFirst[a],cacheFirst[b]):0;});
   return keys.map(function(k){
-    var eps=g.map[k],p=progressOf(eps);
+    var eps=sorted(g.map[k]),p=progressOf(eps);
     var y0=Math.min.apply(null,eps.map(function(x){return x.y0;}));
     var y1=Math.max.apply(null,eps.map(function(x){return x.y1;}));
-    return grpHTML("s:"+k,k,fmtSpan(y0,y1)+" · "+eps.length+" ep"+(eps.length>1?"s":""),pbar(p),listHTML(sorted(eps)),!!openAll);
+    return grpHTML("s:"+k,k,fmtSpan(y0,y1)+" · "+eps.length+" ep"+(eps.length>1?"s":""),pbar(p),eps,null);
   }).join("");}
 
 /* ------------------------------------------------------------------ views */
@@ -577,13 +609,16 @@ function renderTimeline(list){
     html+='<div class="tlera"><div class="tlerahead"><h3>'+esc(era)+'</h3><span>'+
       esc(meta[era]||"")+' · '+eps.length+' episodes · '+p.done+' listened</span></div>';
     srs.forEach(function(s){
-      var sp=progressOf(s.eps);
-      html+='<div class="tlitem'+(sp.pct===100?" seen":"")+'" data-tl="'+esc(s.name)+'">'+
+      var eps2=sorted(s.eps),sp=progressOf(eps2),gid="tl:"+era+"|"+s.name;
+      GROUPS[gid]=eps2.map(function(e){return e.k;});
+      var open=!!OPEN[gid];
+      html+='<div class="tlitem'+(sp.pct===100?" seen":"")+'" data-grp="'+esc(gid)+'">'+
         '<div class="tlcard" role="button" tabindex="0">'+
         '<span class="tlyear">'+esc(fmtSpan(s.y0,s.y1))+'</span>'+
         '<span class="tlname">'+hl(s.name)+'<small>'+esc(s.eps[0].st)+' · '+s.eps.length+
         ' episode'+(s.eps.length>1?"s":"")+'</small></span>'+pbar(sp)+'</div>'+
-        '<div class="tlbody" hidden>'+listHTML(sorted(s.eps))+'</div></div>';});
+        '<div class="tlbody"'+(open?"":" hidden")+(open?"":' data-lazy="1"')+'>'+
+        (open?listHTML(eps2):"")+'</div></div>';});
     html+='</div>';});
   return html+'</div>';}
 
@@ -597,7 +632,8 @@ function renderNested(list,outerKey,orderList,subtitleFn){
     var y0=Math.min.apply(null,eps.map(function(x){return x.y0;}));
     var y1=Math.max.apply(null,eps.map(function(x){return x.y1;}));
     var sub=subtitleFn?subtitleFn(k,eps):(fmtSpan(y0,y1)+" · "+eps.length+" episodes");
-    return grpHTML(outerKey+":"+k,k,sub,pbar(p),seriesGroups(eps));
+    var id=outerKey+":"+k;
+    return grpHTML(id,k,sub,pbar(p),eps,OPEN[id]?seriesGroups(eps):null);
   }).join("");}
 
 function renderThemes(list){
@@ -606,8 +642,8 @@ function renderThemes(list){
   list.forEach(function(e){e.th.forEach(function(t){if(!m[t]){m[t]=[];keys.push(t);}m[t].push(e);});});
   keys.sort(function(a,b){return m[b].length-m[a].length;});
   return keys.map(function(k){
-    var eps=m[k],p=progressOf(eps);
-    return grpHTML("theme:"+k,k,eps.length+" episodes",pbar(p),seriesGroups(eps));
+    var eps=m[k],p=progressOf(eps),id="theme:"+k;
+    return grpHTML(id,k,eps.length+" episodes",pbar(p),eps,OPEN[id]?seriesGroups(eps):null);
   }).join("");}
 
 function renderSeries(list){
@@ -642,15 +678,16 @@ function renderMe(){
     '<div class="statcard"><b>'+queued.length+'</b><span>in your queue</span></div>'+
     '<div class="statcard"><b>'+starred.length+'</b><span>favourites</span></div></div>';
   if(!done.length&&!queued.length&&!starred.length){
-    h+='<div class="empty">Nothing tracked yet. Use ○ to mark an episode listened, ☆ to favourite it, '+
-       'and ⌁ to add it to your queue — it all stays in this browser.</div>';}
+    h+='<div class="empty">Nothing tracked yet. Use the circle to mark an episode listened, the star to '+
+       'favourite it, and the bookmark to add it to your queue — it all stays in this browser.</div>';}
   if(partial.length){
     h+='<h2 class="sec">Pick up where you left off</h2>'+
        '<p class="hint">Series you have started but not finished — unheard parts only.</p>';
     h+=partial.slice(0,12).map(function(x){
-      var rest=x.eps.filter(function(e){return !prog.listened[e.k];});
-      return grpHTML("cont:"+x.name,x.name,x.p.done+" of "+x.p.total+" done",pbar(x.p),
-        listHTML(rest.sort(function(a,b){return cmpNum(a,b);})));}).join("");}
+      var rest=x.eps.filter(function(e){return !prog.listened[e.k];})
+                    .sort(function(a,b){return cmpNum(a,b);});
+      return grpHTML("cont:"+x.name,x.name,x.p.done+" of "+x.p.total+" done",pbar(x.p),rest,null);
+    }).join("");}
   if(queued.length){
     h+='<h2 class="sec">Your queue</h2>'+listHTML(sorted(queued));}
   if(starred.length){
@@ -667,9 +704,8 @@ function renderMe(){
   return h;}
 
 /* ------------------------------------------------------------------ render */
-function render(){
-  var list=filtered();
-  var v=state.view;
+function updateStatus(list){
+  list=list||filtered();
   var pr=progressOf(list);
   $("#status").innerHTML=
     '<span><b>'+list.length+'</b> of '+EPS.length+' episodes'+(state.q?' matching “'+esc(state.q)+'”':"")+'</span>'+
@@ -680,17 +716,52 @@ function render(){
       (pr.done?'<button class="bulkbtn" id="bulkOff">Un-mark</button>':"")+
      '</span>':"");
   $("#clearBtn").hidden=!(activeCount()||state.q);
-  var fc=$("#fcount");fc.hidden=!activeCount();fc.textContent=activeCount();
-  if(v==="timeline")$("#v-timeline").innerHTML=renderTimeline(list);
-  if(v==="arcs")$("#v-arcs").innerHTML=renderNested(list,"st",DATA.strands.map(function(x){return x.name;}));
-  if(v==="eras")$("#v-eras").innerHTML=renderNested(list,"e",DATA.eras.map(function(x){return x.name;}),
+  var fc=$("#fcount");fc.hidden=!activeCount();fc.textContent=activeCount();}
+
+/* Marking one episode does not rebuild the view: it repaints that card wherever
+   it appears, then the progress bars and counters. */
+function updateEpisodeCards(k){
+  var done=!!prog.listened[k],star=!!prog.star[k],q=!!prog.queue[k];
+  var sel='.ep[data-k="'+(window.CSS&&CSS.escape?CSS.escape(k):k)+'"]';
+  $$(sel).forEach(function(el){
+    el.classList.toggle("done",done);
+    var set=function(act,on,html){
+      var b=el.querySelector('[data-act="'+act+'"]');
+      if(!b)return;
+      b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.innerHTML=html;};
+    set("listened",done,ICON.check(done));
+    set("star",star,ICON.star(star));
+    set("queue",q,ICON.mark(q));});}
+
+function refreshProgress(){
+  $$("[data-grp]").forEach(function(el){
+    var keys=GROUPS[el.dataset.grp];if(!keys)return;
+    var p=progressOfKeys(keys);
+    var bar=el.querySelector(".pbar i"),num=el.querySelector(".pnum");
+    if(bar)bar.style.width=p.pct+"%";
+    if(num)num.textContent=pnumText(p);
+    if(el.classList.contains("tlitem"))el.classList.toggle("seen",p.pct===100&&p.total>0);});}
+
+function render(){
+  var list=filtered(),v=state.view;
+  updateStatus(list);
+  GROUPS={};
+  var host=$("#v-"+v);
+  if(v==="timeline")host.innerHTML=renderTimeline(list);
+  if(v==="arcs")host.innerHTML=renderNested(list,"st",DATA.strands.map(function(x){return x.name;}));
+  if(v==="eras")host.innerHTML=renderNested(list,"e",DATA.eras.map(function(x){return x.name;}),
     function(k,eps){var m="";DATA.eras.forEach(function(x){if(x.name===k)m=x.range;});
       return m+" · "+eps.length+" episodes";});
-  if(v==="themes")$("#v-themes").innerHTML=renderThemes(list);
-  if(v==="series")$("#v-series").innerHTML=renderSeries(list);
-  if(v==="all")$("#v-all").innerHTML=renderAll(list);
-  if(v==="me")$("#v-me").innerHTML=renderMe();
-  $$(".view").forEach(function(s){s.classList.toggle("active",s.id==="v-"+v);});
+  if(v==="themes")host.innerHTML=renderThemes(list);
+  if(v==="series")host.innerHTML=renderSeries(list);
+  if(v==="all")host.innerHTML=renderAll(list);
+  if(v==="me")host.innerHTML=renderMe();
+  /* Views left in the document add up: emptying the inactive ones keeps the
+     page small enough for a phone to stay responsive. */
+  $$(".view").forEach(function(s){
+    var on=(s.id==="v-"+v);
+    s.classList.toggle("active",on);
+    if(!on&&s.innerHTML!=="")s.innerHTML="";});
   $$(".tab").forEach(function(t){t.setAttribute("aria-selected",t.dataset.view===v?"true":"false");});
   updateStats();}
 
@@ -751,18 +822,35 @@ document.addEventListener("click",function(ev){
   var gm=t.closest(".gmark");
   if(gm){
     ev.stopPropagation();
-    var grp=gm.closest(".grp");
-    var keys=$$(".ep",grp).map(function(x){return x.dataset.k;});
-    var uniq={},list=[];
-    keys.forEach(function(k){if(!uniq[k]&&BYKEY[k]){uniq[k]=1;list.push(BYKEY[k]);}});
-    var anyLeft=list.some(function(e){return !prog.listened[e.k];});
-    bulkMark(list,anyLeft);return;}
+    var sec=gm.closest("[data-grp]");
+    var list=epsOf(GROUPS[sec&&sec.dataset.grp]);
+    if(!list.length)return;
+    bulkMark(list,list.some(function(e){return !prog.listened[e.k];}));return;}
 
   var head=t.closest(".grphead");
-  if(head){head.parentNode.classList.toggle("open");return;}
+  if(head){
+    var g=head.parentNode,id=g.dataset.grp;
+    var willOpen=!g.classList.contains("open");
+    g.classList.toggle("open",willOpen);
+    OPEN[id]=willOpen;
+    if(willOpen){
+      var body=g.querySelector(".gbody");
+      if(body&&body.hasAttribute("data-lazy")){
+        /* outer groups hold nested series; leaf groups hold episodes */
+        if(/^(st|e|theme):/.test(id))body.innerHTML=seriesGroups(epsOf(GROUPS[id]));
+        else body.innerHTML=listHTML(epsOf(GROUPS[id]));
+        body.removeAttribute("data-lazy");}}
+    return;}
 
   var card=t.closest(".tlcard");
-  if(card){var body=card.parentNode.querySelector(".tlbody");body.hidden=!body.hidden;return;}
+  if(card){
+    var item=card.closest(".tlitem"),tb=item.querySelector(".tlbody");
+    var show=tb.hidden;
+    tb.hidden=!show;OPEN[item.dataset.grp]=show;
+    if(show&&tb.hasAttribute("data-lazy")){
+      tb.innerHTML=listHTML(epsOf(GROUPS[item.dataset.grp]));
+      tb.removeAttribute("data-lazy");}
+    return;}
 
   var tag=t.closest(".tag[data-f]");
   if(tag){
@@ -780,11 +868,16 @@ document.addEventListener("click",function(ev){
   if(a==="play"){ep.classList.toggle("playing");
     var au=ep.querySelector("audio");if(au&&ep.classList.contains("playing"))au.play().catch(function(){});
     else if(au)au.pause();return;}
-  if(a==="listened"){
-    if(prog.listened[k]){delete prog.listened[k];}else{prog.listened[k]=Date.now();delete prog.queue[k];}
-    saveProg();render();return;}
-  if(a==="star"){if(prog.star[k])delete prog.star[k];else prog.star[k]=Date.now();saveProg();render();return;}
-  if(a==="queue"){if(prog.queue[k])delete prog.queue[k];else prog.queue[k]=Date.now();saveProg();render();return;}
+  if(a==="listened"||a==="star"||a==="queue"){
+    if(a==="listened"){
+      if(prog.listened[k]){delete prog.listened[k];}
+      else{prog.listened[k]=Date.now();delete prog.queue[k];}
+    }else if(prog[a][k]){delete prog[a][k];}else{prog[a][k]=Date.now();}
+    saveProg();
+    /* a status filter or the dashboard changes which episodes belong on screen */
+    if(Object.keys(state.f.status).length||state.view==="me"){render();}
+    else{updateEpisodeCards(k);refreshProgress();updateStats();updateStatus();}
+    return;}
 });
 
 document.addEventListener("keydown",function(ev){
@@ -931,9 +1024,14 @@ function chips(el,items,counts){
       '<span class="n">'+n+'</span></button>';}).join("");}
 
 var inline=document.getElementById("rih-data");
-var load=inline?Promise.resolve(JSON.parse(inline.textContent))
-  :fetch("data/episodes.json",{cache:"no-cache"}).then(function(r){
-     if(!r.ok)throw new Error("HTTP "+r.status);return r.json();});
+function getData(tries){
+  return fetch("data/episodes.json").then(function(r){
+    if(!r.ok)throw new Error("HTTP "+r.status);return r.json();
+  }).catch(function(err){
+    if(tries>0)return new Promise(function(go){setTimeout(go,700);})
+                      .then(function(){return getData(tries-1);});
+    throw err;});}
+var load=inline?Promise.resolve(JSON.parse(inline.textContent)):getData(2);
 load.then(function(d){
   DATA=d;EPS=d.episodes;EPS.forEach(function(e){BYKEY[e.k]=e;});
   chips("f-era",d.eras.map(function(x){return [x.name,x.count];}));
