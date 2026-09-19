@@ -458,6 +458,11 @@ function cmpNum(a,b){return (+a.n||0)-(+b.n||0);}
 function sorted(list){return list.slice().sort(SORTS[state.sort]||SORTS["rel-desc"]);}
 function filtered(){return EPS.filter(matches);}
 
+/* Apple links: podcasts:// opens the Podcasts app directly (iPhone, iPad, Mac);
+   https:// is the web fallback for anywhere the app is not installed. */
+function appleApp(u){return String(u||"").replace(/^https:/,"podcasts:");}
+function appleWeb(u){return String(u||"").replace(/^podcasts:/,"https:");}
+
 /* ------------------------------------------------------------------ icons */
 function svg(d,fill){return '<svg viewBox="0 0 24 24" width="17" height="17" fill="'+(fill?"currentColor":"none")+
   '" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';}
@@ -497,7 +502,8 @@ function epHTML(e){
    '<div class="epmeta">'+tags+'</div>'+
    '<div class="epdesc">'+esc(e.desc||"No description.")+'</div>'+
    '<div class="eplinks">'+
-     (e.ap?'<a href="'+esc(e.ap)+'" target="_blank" rel="noopener">Apple Podcasts ↗</a>':'')+
+     (e.ap?'<a href="'+esc(appleApp(e.ap))+'">Open in Podcasts ↗</a>'+
+            '<a href="'+esc(appleWeb(e.ap))+'" target="_blank" rel="noopener">Apple web ↗</a>':'')+
      (e.au?'<button data-act="play">▶ Play here</button>':'')+
      '<span class="tag plain">Series: '+esc(e.s)+'</span>'+
      '<span class="tag" data-f="strand" data-v="'+esc(e.st)+'">Arc: '+esc(e.st)+'</span>'+

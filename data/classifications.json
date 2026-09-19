@@ -9295,6 +9295,20 @@
   "theme2": "Politics & Power",
   "title": "698. The Troubles: The Brink of Civil War (Part 2)"
  },
+ "n699": {
+  "apple": "",
+  "confidence": "high",
+  "end": 1971,
+  "era": "Cold War & Post-War World",
+  "region": "Britain & Ireland",
+  "series": "The Troubles",
+  "start": 1969,
+  "strand": "Modern Britain & Ireland",
+  "subject": "The Provisional IRA and the escalation of the Troubles",
+  "theme": "War & Conflict",
+  "theme2": "Politics & Power",
+  "title": "699. The Troubles: Return of the IRA (Part 3)"
+ },
  "n7": {
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000500744905",
   "confidence": "low",
@@ -9323,6 +9337,20 @@
   "theme2": "Everyday Life & Society",
   "title": "70. Children’s History"
  },
+ "n700": {
+  "apple": "",
+  "confidence": "high",
+  "end": 1973,
+  "era": "Cold War & Post-War World",
+  "region": "Britain & Ireland",
+  "series": "The Troubles",
+  "start": 1972,
+  "strand": "Modern Britain & Ireland",
+  "subject": "Bloody Sunday and its aftermath in Northern Ireland",
+  "theme": "War & Conflict",
+  "theme2": "Politics & Power",
+  "title": "700. The Troubles: Bloody Sunday (Part 4)"
+ },
  "n701": {
   "apple": "",
   "confidence": "high",
@@ -9350,6 +9378,62 @@
   "theme": "War & Conflict",
   "theme2": "Politics & Power",
   "title": "702. Roman Civil War: The Barbarian Invasion (Part 2)"
+ },
+ "n703": {
+  "apple": "",
+  "confidence": "high",
+  "end": -86,
+  "era": "Ancient Rome",
+  "region": "The Mediterranean & Classical World",
+  "series": "Roman Civil War",
+  "start": -88,
+  "strand": "The Roman Republic",
+  "subject": "Sulla marches on Rome and Marius retaliates",
+  "theme": "War & Conflict",
+  "theme2": "Politics & Power",
+  "title": "703. Roman Civil War: Marching on the Senate (Part 3)"
+ },
+ "n704": {
+  "apple": "",
+  "confidence": "high",
+  "end": -78,
+  "era": "Ancient Rome",
+  "region": "The Mediterranean & Classical World",
+  "series": "Roman Civil War",
+  "start": -87,
+  "strand": "The Roman Republic",
+  "subject": "Sulla's eastern victories, the Colline Gate and his dictatorship",
+  "theme": "War & Conflict",
+  "theme2": "Politics & Power",
+  "title": "704. Roman Civil War: Master of the Republic (Part 4)"
+ },
+ "n705": {
+  "apple": "",
+  "confidence": "high",
+  "end": 1867,
+  "era": "The Long Nineteenth Century",
+  "region": "Africa",
+  "series": "Queen Victoria’s Revenge",
+  "start": 1855,
+  "strand": "The British Empire",
+  "subject": "Emperor Tewodros II of Abyssinia and the British hostages",
+  "theme": "Empire & Colonialism",
+  "theme2": "Politics & Power",
+  "title": "705. Queen Victoria's Revenge: The Mad Emperor of Abyssinia (Part 1)"
+ },
+ "n706": {
+  "apple": "",
+  "confidence": "high",
+  "end": 1868,
+  "era": "The Long Nineteenth Century",
+  "region": "Africa",
+  "series": "Queen Victoria’s Revenge",
+  "start": 1867,
+  "strand": "The British Empire",
+  "subject": "Napier's expedition and the storming of Magdala",
+  "theme": "War & Conflict",
+  "theme2": "Empire & Colonialism",
+  "title": "706. Queen Victoria's Revenge: Storming the Citadel (Part 2)"
  },
  "n71": {
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000527933813",

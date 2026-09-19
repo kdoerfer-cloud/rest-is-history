@@ -150,6 +150,9 @@ def main():
                 unsorted_titles.append(full)
 
         link = c.get("apple") or apple.get(slug(short)) or ""
+        # store the canonical https form; the page derives the podcasts:// app link
+        if link.startswith("podcasts://"):
+            link = "https://" + link[len("podcasts://"):]
         guid = (item.findtext("guid") or "").strip()
         episodes.append({
             "k": key, "g": guid, "n": num, "t": short, "ft": full,
