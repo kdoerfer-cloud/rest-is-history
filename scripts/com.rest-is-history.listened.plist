@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Publishes your listening history once a day, at 22:30.
+
+  Install:
+    cp scripts/com.rest-is-history.listened.plist ~/Library/LaunchAgents/
+    # edit the two paths below first if your repo lives elsewhere
+    launchctl load ~/Library/LaunchAgents/com.rest-is-history.listened.plist
+
+  Remove:
+    launchctl unload ~/Library/LaunchAgents/com.rest-is-history.listened.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>              <string>com.rest-is-history.listened</string>
+  <key>WorkingDirectory</key>   <string>/Users/Karl/Projects/rest-is-history-repo</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/Karl/Projects/rest-is-history-repo/scripts/export_listened.py</string>
+    <string>--push</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>   <integer>22</integer>
+    <key>Minute</key> <integer>30</integer>
+  </dict>
+  <key>StandardOutPath</key>    <string>/tmp/rih-listened.log</string>
+  <key>StandardErrorPath</key>  <string>/tmp/rih-listened.log</string>
+</dict>
+</plist>

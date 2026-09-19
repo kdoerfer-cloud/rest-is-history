@@ -22,6 +22,7 @@ html[data-theme="dark"]{
   --good:#6cc79a; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.3);
 }
 *{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none!important}   /* class rules below would otherwise out-rank it */
 html{scroll-behavior:smooth}
 body{font-family:var(--serif);background:var(--bg);color:var(--text);line-height:1.6;
   -webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
@@ -122,6 +123,9 @@ main{max-width:var(--maxw);margin:0 auto;padding:.4rem 1.25rem 4rem}
 .act{background:none;border:1px solid transparent;border-radius:7px;width:1.85rem;height:1.85rem;
   cursor:pointer;display:grid;place-items:center;color:var(--muted);transition:all .12s;font-size:.9rem}
 .act:hover{background:var(--bg-soft);color:var(--text);border-color:var(--border)}
+a.act{text-decoration:none}
+.act.apple{color:var(--accent)}
+.act.apple:hover{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .act.on{color:var(--accent);border-color:var(--accent);background:var(--bg-soft)}
 .epmeta{display:flex;flex-wrap:wrap;gap:.3rem .45rem;margin-top:.45rem;font-family:var(--sans);font-size:.72rem}
 .tag{background:var(--bg-soft);border:1px solid var(--border);border-radius:999px;padding:.1rem .5rem;
@@ -264,6 +268,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
     </div>
     <div class="hbtns">
       <button class="iconbtn" id="themeBtn" title="Light / dark (d)" aria-label="Toggle dark mode">◐<span id="themeTxt">Dark</span></button>
+      <button class="iconbtn" id="lockBtn" hidden></button>
       <button class="iconbtn" id="dataBtn" title="Export or import your listening history">⇅ Data</button>
     </div>
   </div>
@@ -388,6 +393,19 @@ function readLS(k,fb){try{var v=localStorage.getItem(k);return v?JSON.parse(v):f
 function writeLS(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 var prog=readLS(LS_PROG,null)||{listened:{},star:{},queue:{}};
 prog.listened=prog.listened||{};prog.star=prog.star||{};prog.queue=prog.queue||{};
+prog.off=prog.off||{};        /* episodes un-marked by hand, overriding the synced list */
+
+/* SYNCED is the listening history exported from Apple Podcasts on the Mac and
+   published with the site. It is the baseline; anything marked or un-marked here
+   in the browser wins over it. */
+var SYNCED={listened:{},generated:"",count:0};
+function isDone(k){
+  if(prog.off[k])return false;
+  return !!(prog.listened[k]||SYNCED.listened[k]);}
+function doneAt(k){return prog.listened[k]||SYNCED.listened[k]||0;}
+function setDone(k,on){
+  if(on){prog.listened[k]=prog.listened[k]||Date.now();delete prog.off[k];delete prog.queue[k];}
+  else{delete prog.listened[k];if(SYNCED.listened[k])prog.off[k]=Date.now();}}
 var ui=readLS(LS_UI,null)||{};
 function saveProg(){writeLS(LS_PROG,prog);}
 function saveUI(){writeLS(LS_UI,{view:state.view,sort:state.sort,theme:ui.theme});}
@@ -431,8 +449,8 @@ function matches(e){
     var ok=false;
     for(var j=0;j<st.length;j++){
       var v=st[j];
-      if(v==="listened"&&prog.listened[e.k])ok=true;
-      if(v==="unheard"&&!prog.listened[e.k])ok=true;
+      if(v==="listened"&&isDone(e.k))ok=true;
+      if(v==="unheard"&&!isDone(e.k))ok=true;
       if(v==="star"&&prog.star[e.k])ok=true;
       if(v==="queue"&&prog.queue[e.k])ok=true;
     }
@@ -474,7 +492,10 @@ function svg(d,fill){return '<svg viewBox="0 0 24 24" width="17" height="17" fil
 var ICON={
   check:function(on){return svg('<circle cx="12" cy="12" r="9" fill="none"/>'+(on?'<path d="M8 12.4l2.6 2.6L16 9.6" stroke="currentColor" fill="none"/>':''),false);},
   star:function(on){return svg('<path d="M12 3.6l2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.9l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85z"/>',on);},
-  mark:function(on){return svg('<path d="M6.5 3.8h11v16.4L12 15.9l-5.5 4.3z"/>',on);}
+  mark:function(on){return svg('<path d="M6.5 3.8h11v16.4L12 15.9l-5.5 4.3z"/>',on);},
+  podcast:function(){return svg('<circle cx="12" cy="9.3" r="2.6" fill="currentColor" stroke="none"/>'+
+    '<path d="M9.9 21c-.5-2.4-.9-4-.9-5.2a3 3 0 016 0c0 1.2-.4 2.8-.9 5.2a1.2 1.2 0 01-1.2.9h-1.8a1.2 1.2 0 01-1.2-.9z" fill="currentColor" stroke="none"/>'+
+    '<path d="M6.1 13.4a7 7 0 1111.8 0" fill="none"/>',false);}
 };
 
 /* ------------------------------------------------------------------ episode card */
@@ -487,7 +508,7 @@ function hl(text){
   return out;}
 
 function epHTML(e){
-  var done=!!prog.listened[e.k],star=!!prog.star[e.k],q=!!prog.queue[e.k];
+  var done=isDone(e.k),star=!!prog.star[e.k],q=!!prog.queue[e.k];
   var tags="";
   tags+='<span class="tag era" data-f="era" data-v="'+esc(e.e)+'">'+esc(e.e)+'</span>';
   tags+='<span class="tag plain">'+esc(fmtSpan(e.y0,e.y1))+'</span>';
@@ -500,6 +521,7 @@ function epHTML(e){
      '<span class="epnum">'+(e.n?"#"+esc(e.n):esc(e.ty==="bonus"?"bonus":"—"))+'</span>'+
      '<h3 class="eptitle" data-act="open">'+hl(e.t)+'</h3>'+
      '<div class="epacts">'+
+       (e.ap?'<a class="act apple" href="'+esc(appleApp(e.ap))+'" title="Open in Apple Podcasts" aria-label="Open in Apple Podcasts">'+ICON.podcast()+'</a>':'')+
        '<button class="act'+(done?" on":"")+'" data-act="listened" title="'+(done?"Listened — click to undo":"Mark as listened")+'" aria-pressed="'+done+'" aria-label="Mark as listened">'+ICON.check(done)+'</button>'+
        '<button class="act'+(star?" on":"")+'" data-act="star" title="Favourite" aria-pressed="'+star+'" aria-label="Favourite">'+ICON.star(star)+'</button>'+
        '<button class="act'+(q?" on":"")+'" data-act="queue" title="Add to my queue" aria-pressed="'+q+'" aria-label="Add to my queue">'+ICON.mark(q)+'</button>'+
@@ -507,8 +529,7 @@ function epHTML(e){
    '<div class="epmeta">'+tags+'</div>'+
    '<div class="epdesc">'+esc(e.desc||"No description.")+'</div>'+
    '<div class="eplinks">'+
-     (e.ap?'<a href="'+esc(appleApp(e.ap))+'">Open in Podcasts ↗</a>'+
-            '<a href="'+esc(appleWeb(e.ap))+'" target="_blank" rel="noopener">Apple web ↗</a>':'')+
+     (e.ap?'<a href="'+esc(appleWeb(e.ap))+'" target="_blank" rel="noopener">Apple Podcasts on the web ↗</a>':'')+
      (e.au?'<button data-act="play">▶ Play here</button>':'')+
      '<span class="tag plain">Series: '+esc(e.s)+'</span>'+
      '<span class="tag" data-f="strand" data-v="'+esc(e.st)+'">Arc: '+esc(e.st)+'</span>'+
@@ -530,11 +551,11 @@ function groupBy(list,fn){
   return {map:m,keys:order};}
 
 function progressOf(list){
-  var n=0;list.forEach(function(e){if(prog.listened[e.k])n++;});
+  var n=0;list.forEach(function(e){if(isDone(e.k))n++;});
   return {done:n,total:list.length,pct:list.length?Math.round(n*100/list.length):0};}
 
 function progressOfKeys(keys){
-  var n=0;keys.forEach(function(k){if(prog.listened[k])n++;});
+  var n=0;keys.forEach(function(k){if(isDone(k))n++;});
   return {done:n,total:keys.length,pct:keys.length?Math.round(n*100/keys.length):0};}
 
 function pnumText(p){return p.total>1?(p.done+"/"+p.total):(p.done?"heard":"1 ep");}
@@ -660,7 +681,7 @@ function renderAll(list){
     (s.length-shown)+' left)</button></div>':"");}
 
 function renderMe(){
-  var all=EPS,done=all.filter(function(e){return prog.listened[e.k];});
+  var all=EPS,done=all.filter(function(e){return isDone(e.k);});
   var secs=done.reduce(function(a,e){return a+(+e.dur||0);},0);
   var starred=all.filter(function(e){return prog.star[e.k];});
   var queued=all.filter(function(e){return prog.queue[e.k];});
@@ -684,7 +705,7 @@ function renderMe(){
     h+='<h2 class="sec">Pick up where you left off</h2>'+
        '<p class="hint">Series you have started but not finished — unheard parts only.</p>';
     h+=partial.slice(0,12).map(function(x){
-      var rest=x.eps.filter(function(e){return !prog.listened[e.k];})
+      var rest=x.eps.filter(function(e){return !isDone(e.k);})
                     .sort(function(a,b){return cmpNum(a,b);});
       return grpHTML("cont:"+x.name,x.name,x.p.done+" of "+x.p.total+" done",pbar(x.p),rest,null);
     }).join("");}
@@ -721,7 +742,7 @@ function updateStatus(list){
 /* Marking one episode does not rebuild the view: it repaints that card wherever
    it appears, then the progress bars and counters. */
 function updateEpisodeCards(k){
-  var done=!!prog.listened[k],star=!!prog.star[k],q=!!prog.queue[k];
+  var done=isDone(k),star=!!prog.star[k],q=!!prog.queue[k];
   var sel='.ep[data-k="'+(window.CSS&&CSS.escape?CSS.escape(k):k)+'"]';
   $$(sel).forEach(function(el){
     el.classList.toggle("done",done);
@@ -766,7 +787,7 @@ function render(){
   updateStats();}
 
 function updateStats(){
-  var done=EPS.filter(function(e){return prog.listened[e.k];});
+  var done=EPS.filter(function(e){return isDone(e.k);});
   var secs=done.reduce(function(a,e){return a+(+e.dur||0);},0);
   $("#s-eps").textContent=EPS.length;
   $("#s-listened").textContent=done.length;
@@ -806,9 +827,20 @@ document.addEventListener("click",function(ev){
 
   if(t.id==="more"){shown+=PAGE;render();return;}
   if(t.id==="bulkOn"){bulkMark(filtered(),true);return;}
-  if(t.id==="bulkOff"){bulkMark(filtered().filter(function(e){return prog.listened[e.k];}),false);return;}
+  if(t.id==="bulkOff"){bulkMark(filtered().filter(function(e){return isDone(e.k);}),false);return;}
 
   if(t.closest("#themeBtn")){setTheme(ui.theme==="dark"?"light":"dark");return;}
+  if(t.closest("#lockBtn")){
+    var msg=SYNCED.count?("Listening history from Apple Podcasts, exported "+
+        (SYNCED.generated||"").slice(0,10)+".\n\nEnter the passphrase again to re-read it:")
+      :"Passphrase for your synced listening history:";
+    var pass=window.prompt(msg);
+    if(pass==null||pass==="")return;
+    unlockSynced(pass).then(function(ok){
+      syncStatus();
+      if(ok){render();toast(SYNCED.count+" episodes loaded from Apple Podcasts");}
+      else toast("That passphrase did not work");});
+    return;}
   if(t.closest("#dataBtn")){openModal(true);return;}
   if(t.id==="modalbg"||t.closest("#mDone")){openModal(false);return;}
   if(t.closest("#mExport")){exportBackup();return;}
@@ -816,7 +848,7 @@ document.addEventListener("click",function(ev){
   if(t.closest("#mApple")){pickFile(".csv,text/csv",importApple);return;}
   if(t.closest("#mClear")){
     if(confirm("Clear all listened marks, favourites and queue from this browser?")){
-      prog={listened:{},star:{},queue:{}};saveProg();render();openModal(false);toast("Cleared");}
+      prog={listened:{},star:{},queue:{},off:{}};saveProg();render();openModal(false);toast("Cleared");}
     return;}
 
   var gm=t.closest(".gmark");
@@ -825,7 +857,7 @@ document.addEventListener("click",function(ev){
     var sec=gm.closest("[data-grp]");
     var list=epsOf(GROUPS[sec&&sec.dataset.grp]);
     if(!list.length)return;
-    bulkMark(list,list.some(function(e){return !prog.listened[e.k];}));return;}
+    bulkMark(list,list.some(function(e){return !isDone(e.k);}));return;}
 
   var head=t.closest(".grphead");
   if(head){
@@ -869,10 +901,8 @@ document.addEventListener("click",function(ev){
     var au=ep.querySelector("audio");if(au&&ep.classList.contains("playing"))au.play().catch(function(){});
     else if(au)au.pause();return;}
   if(a==="listened"||a==="star"||a==="queue"){
-    if(a==="listened"){
-      if(prog.listened[k]){delete prog.listened[k];}
-      else{prog.listened[k]=Date.now();delete prog.queue[k];}
-    }else if(prog[a][k]){delete prog[a][k];}else{prog[a][k]=Date.now();}
+    if(a==="listened"){setDone(k,!isDone(k));}
+    else if(prog[a][k]){delete prog[a][k];}else{prog[a][k]=Date.now();}
     saveProg();
     /* a status filter or the dashboard changes which episodes belong on screen */
     if(Object.keys(state.f.status).length||state.view==="me"){render();}
@@ -924,7 +954,7 @@ function exportBackup(){
 
 function restoreBackup(text){
   try{var o=JSON.parse(text);
-    ["listened","star","queue"].forEach(function(k){
+    ["listened","star","queue","off"].forEach(function(k){
       Object.keys(o[k]||{}).forEach(function(id){prog[k][id]=o[k][id];});});
     saveProg();render();toast("Backup merged");
   }catch(e){toast("That file could not be read");}}
@@ -990,10 +1020,10 @@ function importApple(text){
     var played=num(r.ZPLAYSTATE)===2||num(r.ZPLAYCOUNT)>0||truthy(r["Has been played?"])
                ||num(r["Play count"])>0||(dur>0&&head>=dur*0.95);
     if(played){
-      if(prog.listened[e.k])already++;else done++;
-      prog.listened[e.k]=appleDate(r);
+      if(isDone(e.k))already++;else done++;
+      prog.listened[e.k]=appleDate(r);delete prog.off[e.k];
       delete prog.queue[e.k];
-    }else if(head>60&&!prog.listened[e.k]){
+    }else if(head>60&&!isDone(e.k)){
       if(!prog.queue[e.k])part++;
       prog.queue[e.k]=appleDate(r);}});
   saveProg();render();
@@ -1010,10 +1040,67 @@ function bulkMark(list,on){
   if(!list.length)return;
   if(list.length>25&&!confirm((on?"Mark ":"Un-mark ")+list.length+" episodes as listened?"))return;
   list.forEach(function(e){
-    if(on){prog.listened[e.k]=prog.listened[e.k]||Date.now();delete prog.queue[e.k];}
-    else delete prog.listened[e.k];});
+    setDone(e.k,on);});
   saveProg();render();
   toast(list.length+" episode"+(list.length>1?"s":"")+(on?" marked listened":" un-marked"));}
+
+/* ------------------------------------------------- synced listening history */
+/* data/listened.json is exported from Apple Podcasts on the Mac and encrypted
+   there (AES-GCM, key stretched with PBKDF2-SHA256). The repo is public, so the
+   file is ciphertext; the passphrase never leaves this browser. */
+var LS_KEY="rih.synckey", SYNCFILE=null;
+
+function b64d(str){
+  var bin=atob(str),out=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);
+  return out;}
+
+function deriveKey(pass,salt,iter){
+  var enc=new TextEncoder();
+  return crypto.subtle.importKey("raw",enc.encode(pass),{name:"PBKDF2"},false,["deriveKey"])
+    .then(function(base){
+      return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:iter,hash:"SHA-256"},
+        base,{name:"AES-GCM",length:256},false,["decrypt"]);});}
+
+function applySynced(obj,stamp){
+  SYNCED.listened=obj.listened||{};
+  SYNCED.generated=obj.generated||stamp||"";
+  SYNCED.count=Object.keys(SYNCED.listened).length;}
+
+function unlockSynced(pass){
+  if(!SYNCFILE||!SYNCFILE.ct)return Promise.resolve(false);
+  if(!window.crypto||!crypto.subtle)return Promise.resolve(false);
+  return deriveKey(pass,b64d(SYNCFILE.salt),SYNCFILE.iter||200000)
+    .then(function(key){
+      return crypto.subtle.decrypt({name:"AES-GCM",iv:b64d(SYNCFILE.iv)},key,b64d(SYNCFILE.ct));})
+    .then(function(buf){
+      applySynced(JSON.parse(new TextDecoder().decode(buf)),SYNCFILE.generated);
+      try{localStorage.setItem(LS_KEY,pass);}catch(e){}
+      return true;})
+    .catch(function(){return false;});}
+
+function syncStatus(){
+  var b=$("#lockBtn");
+  if(!SYNCFILE){b.hidden=true;return;}
+  var open=SYNCED.count>0;
+  b.hidden=false;
+  b.textContent=open?("↻ "+SYNCED.count+" synced"):"🔒 Unlock history";
+  b.title=open?("Listening history from Apple Podcasts, exported "+
+                (SYNCED.generated||"").slice(0,10)):"Enter your passphrase to load your listening history";}
+
+function loadSynced(){
+  return fetch("data/listened.json",{cache:"no-cache"})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(f){
+      if(!f)return;
+      SYNCFILE=f;
+      if(!f.ct){applySynced(f,f.generated);syncStatus();render();return;}
+      var saved=null;try{saved=localStorage.getItem(LS_KEY);}catch(e){}
+      if(!saved){syncStatus();return;}
+      return unlockSynced(saved).then(function(ok){
+        syncStatus();
+        if(ok)render();});})
+    .catch(function(){});}
 
 /* ------------------------------------------------------------------ boot */
 function chips(el,items,counts){
@@ -1050,6 +1137,7 @@ load.then(function(d){
     " story arcs · covering "+fmtYear(y0)+" to "+fmtYear(y1)+".";
   $("#sort").value=state.sort;
   render();
+  loadSynced();
 }).catch(function(err){
   $("#status").innerHTML='<span style="color:var(--accent)">Could not load episode data ('+
     esc(err.message)+'). If you are opening this file directly from disk, run a local web server '+

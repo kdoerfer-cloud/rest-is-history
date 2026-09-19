@@ -37,6 +37,10 @@ A single-page, searchable database of every episode of *The Rest Is History*, or
 | `data/classifications.json` | **Hand-curated.** The historical dating and grouping for each episode. |
 | `scripts/build_data.py` | Merges the RSS feed with the classifications into `data/episodes.json`. |
 | `scripts/fetch_feed.py` | Small helper for inspecting the raw feed. |
+| `data/listened.json` | Generated, encrypted. Your Apple Podcasts history, published with the site. |
+| `scripts/export_listened.py` | Reads the Mac's Podcasts database, encrypts it, writes `data/listened.json`. |
+| `scripts/sync-listened.command` | Double-click version of the above, with a push. |
+| `scripts/data_unchanged.py` | Lets the nightly job skip a commit when nothing really changed. |
 | `.github/workflows/update-episodes.yml` | Rebuilds and commits the data nightly. |
 
 Rebuild locally:
@@ -49,7 +53,38 @@ python3 -m http.server 8000            # then open http://localhost:8000
 Opening `index.html` straight off disk will not work — browsers block `fetch()` over `file://`,
 so the page needs to be served over HTTP (locally or via GitHub Pages).
 
-## Importing your Apple Podcasts history
+## Keeping the listened list current
+
+`data/listened.json` carries what you have already heard, so every browser and device
+shows the same progress without importing anything. It is produced on the Mac from the
+Podcasts app's own database:
+
+```bash
+python3 scripts/export_listened.py --push
+```
+
+or double-click `scripts/sync-listened.command`. To have it run by itself once a day,
+install the launch agent described at the top of
+`scripts/com.rest-is-history.listened.plist`.
+
+**This repository is public, so the file is encrypted** — AES-GCM under a key stretched
+from a passphrase with PBKDF2-SHA256 (200,000 iterations). The passphrase is never
+written to the repository. The site asks for it once per browser, decrypts in the page,
+and remembers it locally. Anyone who finds the file sees ciphertext.
+
+Set the passphrase once, in the macOS keychain:
+
+```bash
+security add-generic-password -a "$USER" -s rih-listened -w
+```
+
+The script also accepts `RIH_PASSPHRASE` in the environment, and prompts if it finds
+neither. It needs `cryptography` (`python3 -m pip install cryptography`).
+
+Anything you mark or un-mark in the browser overrides the synced list for that episode,
+and survives the next sync.
+
+## Importing a one-off Apple export
 
 Apple publishes no listening-history API, so this is a file import rather than a live sync —
 re-run it whenever you want to top up. Two ways to get the file:
