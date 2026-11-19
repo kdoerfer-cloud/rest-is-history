@@ -19,7 +19,7 @@ Passphrase, in order of preference:
 
 Needs `cryptography` (one-off:  python3 -m pip install cryptography).
 """
-import argparse, base64, json, os, re, shutil, sqlite3, subprocess, sys, tempfile, getpass
+import argparse, re, base64, json, os, re, shutil, sqlite3, subprocess, sys, tempfile, getpass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -51,24 +51,72 @@ def passphrase():
 
 
 def read_play_state():
+    """Read every Rest Is History episode row from the Podcasts database.
+
+    Apple renames columns between macOS releases, so this looks at what the database
+    actually has instead of assuming fixed names, and returns plain dicts.
+    """
     if not DB.exists():
         sys.exit(f"Podcasts database not found at:\n  {DB}\n"
                  "Open the Podcasts app on this Mac at least once, then try again.")
     # the app keeps the database open, so work on a copy
     tmp = Path(tempfile.gettempdir()) / "rih-podcasts-snapshot.sqlite"
     shutil.copy2(DB, tmp)
+    for ext in ("-wal", "-shm"):                       # pick up uncommitted plays too
+        side = Path(str(DB) + ext)
+        if side.exists():
+            shutil.copy2(side, Path(str(tmp) + ext))
     con = sqlite3.connect(f"file:{tmp}?mode=ro", uri=True)
     con.row_factory = sqlite3.Row
-    rows = con.execute("""
-        SELECT e.ZFREEENCLOSUREURL AS url, e.ZPLAYSTATE AS state, e.ZPLAYCOUNT AS plays,
-               e.ZPLAYHEAD AS head, e.ZDURATION AS dur, e.ZLASTDATEPLAYED AS played
-        FROM ZMTEPISODE e
-        JOIN ZMTPODCAST p ON p.Z_PK = e.ZPODCAST
-        WHERE p.ZTITLE LIKE '%Rest Is History%'
-    """).fetchall()
+
+    def cols(table):
+        return [r[1] for r in con.execute(f"PRAGMA table_info({table})")]
+    ec, pc = cols("ZMTEPISODE"), cols("ZMTPODCAST")
+
+    def pick(names, have=ec):
+        return [n for n in names if n in have]
+
+    url_cols = pick(["ZFREEENCLOSUREURL", "ZENCLOSUREURL", "ZASSETURL", "ZDOWNLOADURL",
+                     "ZPLAYBACKURL", "ZWEBPAGEURL", "ZSTREAMURL"]) or \
+               [c for c in ec if "URL" in c and "ARTWORK" not in c and "IMAGE" not in c]
+    guid_cols = pick(["ZGUID", "ZUUID", "ZEPISODEGUID"])
+    title_cols = pick(["ZTITLE", "ZCLEANEDTITLE", "ZITUNESTITLE"])
+    state = {"state": pick(["ZPLAYSTATE", "ZPLAYSTATUS"]), "plays": pick(["ZPLAYCOUNT"]),
+             "head": pick(["ZPLAYHEAD", "ZPLAYHEADPOSITION", "ZPLAYPOSITION"]),
+             "dur": pick(["ZDURATION"]),
+             "played": pick(["ZLASTDATEPLAYED", "ZLASTPLAYEDDATE", "ZPLAYSTATEMANUALLYSET"])}
+    sel = [f"e.{c} AS u_{c}" for c in url_cols] + [f"e.{c} AS g_{c}" for c in guid_cols] + \
+          [f"e.{c} AS t_{c}" for c in title_cols] + \
+          [f"{('e.'+v[0]) if v else 'NULL'} AS {k}" for k, v in state.items()]
+    if "ZPODCAST" in ec:
+        join = "JOIN ZMTPODCAST p ON p.Z_PK = e.ZPODCAST"
+    elif "ZPODCASTUUID" in ec and "ZUUID" in pc:
+        join = "JOIN ZMTPODCAST p ON p.ZUUID = e.ZPODCASTUUID"
+    else:
+        sys.exit("Unrecognised Podcasts database layout. Episode columns: " + ", ".join(ec))
+    ptitle = "p.ZTITLE" if "ZTITLE" in pc else "p.ZCLEANEDTITLE"
+    try:
+        rows = con.execute(f"SELECT {', '.join(sel)} FROM ZMTEPISODE e {join} "
+                           f"WHERE {ptitle} LIKE '%Rest Is History%'").fetchall()
+    except sqlite3.Error as err:
+        sys.exit(f"Could not read the Podcasts database ({err}).\nEpisode columns: " + ", ".join(ec))
     con.close()
-    tmp.unlink(missing_ok=True)
-    return rows
+    for ext in ("", "-wal", "-shm"):
+        Path(str(tmp) + ext).unlink(missing_ok=True)
+    out = []
+    for r in rows:
+        d = dict(r)
+        out.append({"urls": [d[k] for k in d if k.startswith("u_") and d[k]],
+                    "guids": [d[k] for k in d if k.startswith("g_") and d[k]],
+                    "titles": [d[k] for k in d if k.startswith("t_") and d[k]],
+                    "state": d["state"], "plays": d["plays"], "head": d["head"],
+                    "dur": d["dur"], "played": d["played"]})
+    return out
+
+
+def norm_title(t):
+    t = re.sub(r"^\s*\d+[.:]\s*", "", str(t or "").lower())
+    return re.sub(r"[^a-z0-9]+", " ", t).strip()
 
 
 def main():
@@ -79,10 +127,19 @@ def main():
 
     episodes = json.loads((ROOT / "data" / "episodes.json").read_text())["episodes"]
     by_asset = {glt(e["au"]): e["k"] for e in episodes if glt(e["au"])}
+    by_guid = {e["g"]: e["k"] for e in episodes if e.get("g")}
+    by_title = {norm_title(e["ft"]): e["k"] for e in episodes}
+    by_title.update({norm_title(e["t"]): e["k"] for e in episodes})
 
     listened, matched, skipped = {}, 0, 0
     for r in read_play_state():
-        key = by_asset.get(glt(r["url"]))
+        key = None
+        for u in r["urls"]:
+            key = key or by_asset.get(glt(u))
+        for g in r["guids"]:
+            key = key or by_guid.get(g)
+        for t in r["titles"]:
+            key = key or by_title.get(norm_title(t))
         if not key:
             skipped += 1                      # Club/bonus episodes, absent from the public feed
             continue
