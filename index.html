@@ -86,12 +86,36 @@ button.ctl.on{background:var(--accent);color:var(--accent-ink);border-color:var(
 .flabel{font-family:var(--sans);font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;
   color:var(--muted);margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
 .chips{display:flex;flex-wrap:wrap;gap:.35rem}
-.chip{font-family:var(--sans);font-size:.78rem;padding:.28rem .6rem;border-radius:999px;cursor:pointer;
+.chip,.jchip{font-family:var(--sans);font-size:.78rem;padding:.28rem .6rem;border-radius:999px;cursor:pointer;
   border:1px solid var(--border-2);background:var(--card-2);color:var(--text);transition:all .12s;
   display:inline-flex;align-items:center;gap:.35rem}
-.chip:hover{border-color:var(--accent-2)}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.chip .n{font-size:.68rem;opacity:.65}
+.chip:hover,.jchip:hover{border-color:var(--accent-2)}
+.chip[aria-pressed="true"],.jchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip .n,.jchip .n{font-size:.68rem;opacity:.65}
+.jchip[aria-pressed="true"] .n{opacity:.85}
+.jpick{margin-bottom:.7rem}.jpick .chips{margin-bottom:.5rem}
+.jopts{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;font-family:var(--sans);font-size:.8rem;color:var(--muted);margin:.3rem 0 .9rem}
+.jopts label{display:inline-flex;align-items:center;gap:.4rem;cursor:pointer}
+.jsum{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:1rem 1.1rem;margin-bottom:1rem}
+.jsum h2{font-size:1.25rem;margin-bottom:.15rem}
+.jsum .jmeta{font-family:var(--sans);font-size:.82rem;color:var(--muted);margin-bottom:.6rem}
+.jbar{height:7px;border-radius:99px;background:var(--bg-soft);overflow:hidden;margin-bottom:.8rem}
+.jbar i{display:block;height:100%;background:var(--accent)}
+.jnext{border-top:1px dashed var(--border-2);padding-top:.7rem}
+.jlabel{font-family:var(--sans);font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
+.jgo{display:inline-block;margin:.2rem 0 .5rem;font-family:var(--sans);font-size:.85rem;font-weight:600;padding:.45rem .9rem;border-radius:999px;background:var(--accent);color:var(--accent-ink);text-decoration:none}
+.jthen{font-family:var(--sans);font-size:.8rem;color:var(--muted);margin-top:.4rem}
+.jthen b{font-weight:600;color:var(--text)}
+.jband{display:flex;flex-wrap:wrap;align-items:baseline;gap:.2rem .7rem;margin:1.5rem 0 .5rem;padding-bottom:.3rem;border-bottom:2px solid var(--border-2)}
+.jband h3{font-size:1.1rem;color:var(--accent)}
+.jband span{font-family:var(--sans);font-size:.76rem;color:var(--muted)}
+.jshelf{margin:1.4rem 0 .4rem}
+@media (max-width:700px){
+  .jpick .chips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.35rem;scrollbar-width:none}
+  .jpick .chips::-webkit-scrollbar{display:none}
+  .jchip{white-space:nowrap;flex:0 0 auto}
+  #v-journeys>.hint{display:none}
+}
 .linkbtn{background:none;border:0;padding:.35rem 0 0;font:inherit;font-size:.78rem;color:var(--accent);cursor:pointer;text-decoration:underline}
 .nbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;margin-bottom:.6rem}
 .nbar .hint{margin:0;flex:1 1 20rem}
@@ -285,6 +309,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
 <div class="tabsbar">
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" data-view="timeline" aria-selected="true">Timeline</button>
+    <button class="tab" role="tab" data-view="journeys" aria-selected="false">Journeys</button>
     <button class="tab" role="tab" data-view="arcs" aria-selected="false">Story arcs<span class="tcount" id="c-arcs"></span></button>
     <button class="tab" role="tab" data-view="eras" aria-selected="false">Eras<span class="tcount" id="c-eras"></span></button>
     <button class="tab" role="tab" data-view="nations" aria-selected="false">Nations<span class="tcount" id="c-nations"></span></button>
@@ -359,6 +384,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
 <main>
   <div class="statusline" id="status">Loading episodes…</div>
   <section class="view active" id="v-timeline"></section>
+  <section class="view" id="v-journeys"></section>
   <section class="view" id="v-arcs"></section>
   <section class="view" id="v-eras"></section>
   <section class="view" id="v-nations"></section>
@@ -420,7 +446,7 @@ function setDone(k,on){
   else{delete prog.listened[k];if(SYNCED.listened[k])prog.off[k]=Date.now();}}
 var ui=readLS(LS_UI,null)||{};
 function saveProg(){writeLS(LS_PROG,prog);}
-function saveUI(){writeLS(LS_UI,{view:state.view,sort:state.sort,nsort:state.nsort,theme:ui.theme});}
+function saveUI(){writeLS(LS_UI,{view:state.view,sort:state.sort,nsort:state.nsort,jr:state.jr,jn:state.jn,jcore:state.jcore,jhide:state.jhide,theme:ui.theme});}
 
 /* ------------------------------------------------------------------ helpers */
 var $=function(s,r){return (r||document).querySelector(s);};
@@ -438,7 +464,7 @@ function toast(msg){var t=$("#toast");t.textContent=msg;t.classList.add("show");
 
 /* ------------------------------------------------------------------ state */
 var DATA=null, EPS=[], BYKEY={};
-var state={view:ui.view||"timeline",nsort:ui.nsort||"count",q:"",sort:ui.sort||"rel-desc",
+var state={view:ui.view||"timeline",nsort:ui.nsort||"count",jr:ui.jr||"Britain & Ireland",jn:ui.jn||"",jcore:!!ui.jcore,jhide:!!ui.jhide,q:"",sort:ui.sort||"rel-desc",
   f:{status:{},era:{},theme:{},region:{},nation:{},dur:{}},y0:null,y1:null};
 var PAGE=60, shown=PAGE;
 
@@ -682,6 +708,128 @@ function renderThemes(list){
     return grpHTML(id,k,eps.length+" episodes",pbar(p),eps,OPEN[id]?seriesGroups(eps):null);
   }).join("");}
 
+/* ------------------------------------------------------------------ journeys
+   A journey is a region (or one nation inside it) laid out as a single listening
+   order: stories sit at the date of their events, the parts of each story stay
+   together and in part order, and big-picture / thematic episodes are kept on
+   their own shelf so the narrative does not jump around. The order itself ("jx",
+   "jk", "rk", "pt") is worked out in scripts/sequence.py. */
+var JREGIONS=["Britain & Ireland","Continental Europe","The Mediterranean & Classical World","The Middle East",
+  "Central Asia & Russia","East Asia","South Asia","Africa","North America","Latin America","Oceania"];
+var JBANDS=[[-800,"Prehistory & the first civilisations","before 800 BC"],
+  [476,"The Classical World","800 BC – AD 476"],[1000,"The Early Middle Ages","476 – 1000"],
+  [1450,"The High & Late Middle Ages","1000 – 1450"],[1600,"Renaissance & Reformation","1450 – 1600"],
+  [1789,"Empires & Enlightenment","1600 – 1789"],[1815,"Revolution & Napoleon","1789 – 1815"],
+  [1914,"The Long Nineteenth Century","1815 – 1914"],[1945,"World Wars & the Interwar Years","1914 – 1945"],
+  [1991,"The Cold War & Post-War World","1945 – 1991"],[1e9,"The Modern World","1991 – now"]];
+var JCULTURE={"Music, Film & Popular Culture":1,"Food, Drink & Daily Life":1,"Sport, Games & the World Cup":1,
+  "Myths, Monsters & Mysteries":1};
+function jband(y){for(var i=0;i<JBANDS.length;i++){if(y<JBANDS[i][0])return i;}return JBANDS.length-1;}
+function fmtHrs(s){var h=s/3600;return (h>=10?Math.round(h):Math.round(h*10)/10)+" h";}
+function jIn(e){
+  if(state.jr==="all")return true;
+  var nr=DATA.nregion||{};
+  return (e.c||[]).some(function(n){return state.jn?n===state.jn:nr[n]===state.jr;});}
+function jOrder(a,b){return a.jx-b.jx;}
+function jParts(eps){
+  var p=eps.map(function(e){return e.pt;}).filter(function(x){return x!=null;});
+  if(!p.length)return "";
+  var a=Math.min.apply(null,p),b=Math.max.apply(null,p);
+  return a===b?"part "+a:"parts "+a+"–"+b;}
+
+function jPicker(){
+  var nr=DATA.nregion||{};
+  var reg={};JREGIONS.forEach(function(r){reg[r]={n:0,s:0};});
+  var all={n:0,s:0},nat={};
+  EPS.forEach(function(e){
+    if(e.jk!=="s")return;
+    all.n++;all.s+=+e.dur||0;
+    var seen={};
+    (e.c||[]).forEach(function(n){var r=nr[n];if(r&&reg[r]&&!seen[r]){seen[r]=1;reg[r].n++;reg[r].s+=+e.dur||0;}
+      if(r===state.jr){nat[n]=(nat[n]||0)+1;}});});
+  var h='<div class="jpick"><div class="chips">'+
+    '<button class="jchip" data-jr="all" aria-pressed="'+(state.jr==="all")+'">Everywhere<span class="n">'+all.n+'</span></button>'+
+    JREGIONS.map(function(r){
+      return '<button class="jchip" data-jr="'+esc(r)+'" aria-pressed="'+(state.jr===r)+'">'+esc(r)+
+        '<span class="n">'+reg[r].n+'</span></button>';}).join("")+'</div>';
+  var nk=Object.keys(nat).sort(function(a,b){return nat[b]-nat[a]||a.localeCompare(b);});
+  if(state.jr!=="all"&&nk.length>1){
+    h+='<div class="chips"><button class="jchip" data-jn="" aria-pressed="'+(!state.jn)+'">All of '+esc(state.jr)+'</button>'+
+      nk.map(function(n){return '<button class="jchip" data-jn="'+esc(n)+'" aria-pressed="'+(state.jn===n)+'">'+esc(n)+
+        '<span class="n">'+nat[n]+'</span></button>';}).join("")+'</div>';}
+  return h+'</div>';}
+
+function renderJourneys(list){
+  var title=state.jr==="all"?"All of history":(state.jn||state.jr);
+  var base=list.filter(function(e){
+    return jIn(e)&&!(state.jcore&&JCULTURE[e.st]);});
+  var spineAll=base.filter(function(e){return e.jk==="s";}).sort(jOrder);
+  var over=base.filter(function(e){return e.jk==="o";}).sort(jOrder);
+  var spec=base.filter(function(e){return e.jk==="x";}).sort(jOrder);
+  var pos={};spineAll.forEach(function(e,i){pos[e.k]=i+1;});
+  var spine=state.jhide?spineAll.filter(function(e){return !isDone(e.k);}):spineAll;
+
+  var done=spineAll.filter(function(e){return isDone(e.k);}).length;
+  var secs=spineAll.reduce(function(a,e){return a+(+e.dur||0);},0);
+  var left=spineAll.filter(function(e){return !isDone(e.k);});
+  var leftSecs=left.reduce(function(a,e){return a+(+e.dur||0);},0);
+  var pct=spineAll.length?Math.round(done*100/spineAll.length):0;
+
+  var h='<p class="hint">Pick a place and listen straight through it in the order the history happened. The parts of each story '+
+    'stay together and in order, overlapping stories sit side by side, and the big-picture episodes (a whole nation’s history in one go) are kept on a shelf '+
+    'of their own so the narrative doesn’t jump about.</p>'+jPicker()+
+    '<div class="jopts"><label><input type="checkbox" id="jcore"'+(state.jcore?" checked":"")+'> Core history only (skip music, film, food, sport and myth episodes)</label>'+
+    '<label><input type="checkbox" id="jhide"'+(state.jhide?" checked":"")+'> Hide episodes I’ve listened to</label></div>';
+
+  if(!spineAll.length&&!over.length&&!spec.length)return h+'<div class="empty">No episodes match.</div>';
+
+  h+='<div class="jsum"><h2>'+esc(title)+'</h2><div class="jmeta">'+spineAll.length+' episodes in order · '+fmtHrs(secs)+
+    ' · '+done+' listened'+(left.length?' · '+fmtHrs(leftSecs)+' to go':'')+
+    (over.length?' · plus '+over.length+' overview'+(over.length>1?'s':''):'')+'</div>'+
+    '<div class="jbar"><i style="width:'+pct+'%"></i></div>';
+  if(left.length){
+    var nx=left[0],after=left.slice(1,4);
+    h+='<div class="jnext"><div class="jlabel">'+(done?'Continue with':'Start here')+'</div>'+
+      (nx.ap?'<a class="jgo" href="'+esc(appleApp(nx.ap))+'">▶ Open in Apple Podcasts</a>':'')+
+      epHTML(nx)+
+      (after.length?'<div class="jthen">Then: '+after.map(function(e){return '<b>'+esc(e.t)+'</b>';}).join(" → ")+'</div>':'')+'</div>';
+  }else if(spineAll.length){h+='<div class="jnext"><div class="jlabel">All done</div>You have listened to every episode on this journey.</div>';}
+  h+='</div>';
+
+  if(over.length){
+    var oid="jo:"+state.jr+"|"+state.jn,op=progressOf(over);
+    GROUPS[oid]=over.map(function(e){return e.k;});
+    h+='<div class="jshelf">'+grpHTML(oid,"Overviews & big-picture episodes",
+      "whole histories and themes that span centuries · "+over.length+" episodes",pbar(op),over,null)+'</div>';}
+
+  /* chunk the ordered spine into arcs: consecutive episodes of the same run */
+  var arcs=[],cur=null;
+  spine.forEach(function(e){
+    if(!cur||cur.rk!==e.rk){cur={rk:e.rk,s:e.s,eps:[]};arcs.push(cur);}
+    cur.eps.push(e);});
+  var band=-1;
+  arcs.forEach(function(a){
+    var b=jband(a.eps[0].sq);
+    if(b!==band){
+      band=b;
+      var inBand=arcs.filter(function(x){return jband(x.eps[0].sq)===b;});
+      var n=inBand.reduce(function(s,x){return s+x.eps.length;},0);
+      var bs=inBand.reduce(function(s,x){return s+x.eps.reduce(function(t,e){return t+(+e.dur||0);},0);},0);
+      h+='<div class="jband"><h3>'+esc(JBANDS[b][1])+'</h3><span>'+esc(JBANDS[b][2])+' · '+inBand.length+
+        ' stories · '+n+' episodes · '+fmtHrs(bs)+'</span></div>';}
+    var first=a.eps[0],last=a.eps[a.eps.length-1];
+    var y0=Math.min.apply(null,a.eps.map(function(x){return x.y0;}));
+    var y1=Math.max.apply(null,a.eps.map(function(x){return x.y1;}));
+    var ps=jParts(a.eps),p=progressOf(a.eps);
+    var sub=fmtSpan(y0,y1)+" · "+(ps?ps+" · ":"")+"listen "+pos[first.k]+(a.eps.length>1?"–"+pos[last.k]:"")+" of "+spineAll.length;
+    var id="j:"+state.jr+"|"+state.jn+"|"+a.rk+"|"+first.k;
+    h+=grpHTML(id,a.s,sub,pbar(p),a.eps,null);});
+
+  if(spec.length){
+    var xid="jx:"+state.jr+"|"+state.jn,xp=progressOf(spec);
+    h+='<div class="jshelf">'+grpHTML(xid,"Specials & extras","Christmas specials and one-off formats · "+spec.length+" episodes",pbar(xp),spec,null)+'</div>';}
+  return h;}
+
 var NATION_LAST={"Worldwide":1,"Unassigned":1};
 function renderNations(list){
   if(!list.length)return '<div class="empty">No episodes match.</div>';
@@ -820,6 +968,7 @@ function render(){
   if(v==="eras")host.innerHTML=renderNested(list,"e",DATA.eras.map(function(x){return x.name;}),
     function(k,eps){var m="";DATA.eras.forEach(function(x){if(x.name===k)m=x.range;});
       return m+" · "+eps.length+" episodes";});
+  if(v==="journeys")host.innerHTML=renderJourneys(list);
   if(v==="nations")host.innerHTML=renderNations(list);
   if(v==="themes")host.innerHTML=renderThemes(list);
   if(v==="series")host.innerHTML=renderSeries(list);
@@ -853,6 +1002,11 @@ function syncChips(){
 
 document.addEventListener("click",function(ev){
   var t=ev.target;
+
+  var jc=t.closest(".jchip");
+  if(jc){if(jc.dataset.jr!==undefined){state.jr=jc.dataset.jr;state.jn="";}
+    else{state.jn=jc.dataset.jn;}
+    saveUI();render();return;}
 
   var ns=t.closest(".nseg");
   if(ns){state.nsort=ns.dataset.nsort;saveUI();render();return;}
@@ -958,10 +1112,15 @@ document.addEventListener("click",function(ev){
     else if(prog[a][k]){delete prog[a][k];}else{prog[a][k]=Date.now();}
     saveProg();
     /* a status filter or the dashboard changes which episodes belong on screen */
-    if(Object.keys(state.f.status).length||state.view==="me"){render();}
+    if(Object.keys(state.f.status).length||state.view==="me"||(state.view==="journeys"&&a==="listened")){render();}
     else{updateEpisodeCards(k);refreshProgress();updateStats();updateStatus();}
     return;}
 });
+
+document.addEventListener("change",function(ev){
+  var t=ev.target;
+  if(t.id==="jcore"){state.jcore=t.checked;saveUI();render();}
+  if(t.id==="jhide"){state.jhide=t.checked;saveUI();render();}});
 
 document.addEventListener("keydown",function(ev){
   var tag=(ev.target.tagName||"").toLowerCase();

@@ -17,6 +17,8 @@ else is tagged "Unassigned" and listed on stderr so it can be added to nations.j
 import json, re, sys, html, urllib.request, datetime
 from pathlib import Path
 import xml.etree.ElementTree as ET
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import sequence
 
 ROOT = Path(__file__).resolve().parent.parent
 FEED = "https://feeds.megaphone.fm/GLT4787413333"
@@ -185,6 +187,7 @@ def main():
             "sub": c.get("subject", ""), "cf": c.get("confidence", "medium"),
         })
 
+    sequence.add_sequence(episodes)      # rk / ro / pt / sq / jk / jx for the Journeys view
     episodes.sort(key=lambda e: (e["d"] or "", e["n"] or ""), reverse=True)
 
     def tally(field):
@@ -203,6 +206,7 @@ def main():
                     for n in STRAND_ORDER if tally("st").get(n)],
         "themes": sorted(tally("th").items(), key=lambda kv: -kv[1]),
         "regions": sorted(tally("r").items(), key=lambda kv: -kv[1]),
+        "nregion": nat.get("regions", {}),
         "nations": sorted(tally("c").items(), key=lambda kv: (-kv[1], kv[0])),
         "episodes": episodes,
     }

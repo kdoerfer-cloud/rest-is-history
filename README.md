@@ -141,3 +141,28 @@ Anything sitting in *Unsorted* needs a human (or an LLM) to add an entry to
 ```
 
 The valid era, theme, region and arc strings are listed at the top of `scripts/build_data.py`.
+
+
+## Journeys (listening order by place)
+
+The **Journeys** tab lays a region — or a single nation inside it — out as one listening order,
+so you can play through, say, Britain & Ireland from Stonehenge to Brexit without the episodes
+jumping around.
+
+* Order is worked out in `scripts/sequence.py` and stored on every episode: `rk` (run), `ro`
+  (order in the run), `pt` (part number), `sq` (sequence year), `jk` (kind: `s` spine, `o`
+  overview, `x` special) and `jx` (global rank). A *run* is consecutive parts of one story; it
+  restarts when the part number goes back to 1, so Nelson's two runs or the two halves of the
+  Hundred Years' War are separate. Runs stay together and sit at the median start year of their
+  episodes. A *survey* run (several parts covering 250+ years, e.g. Ireland, Portugal, Baghdad)
+  is spread out, each part at its own start year.
+* Single episodes that span more than 150 years (a nation's whole history, a thematic romp such as
+  Smuggling) are *overviews* and live on a shelf at the top of the journey; Christmas specials and
+  format episodes are *specials* on a shelf at the end.
+* Region membership comes from the nation tags in `data/nations.json` (`regions` maps each nation
+  to a region), so a story appears in every region it touches.
+* Hand corrections live in `data/sequence.json`: `spine` / `overview` (force an episode's kind),
+  `sq` (fix an episode's sequence year), `survey_series` (spread a series' parts out).
+* "Core history only" hides the music/film, food, sport and myth strands; "Hide episodes I've
+  listened to" skips what you've heard. The panel at the top always shows the next unlistened
+  episode with a one-tap Apple Podcasts button.
