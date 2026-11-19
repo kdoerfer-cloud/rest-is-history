@@ -9,6 +9,10 @@ Historical classification (era / theme / region / dates / series / strand) lives
 data/classifications.json, keyed by a stable episode key. Episodes that appear in the
 feed without a classification are carried through as "Unsorted" unless their series
 name matches an already-classified series, in which case they inherit it.
+
+Nations / countries / kingdoms live in data/nations.json (per-episode > per-series > per-strand
+defaults). New episodes in an already-mapped series inherit its nations automatically; anything
+else is tagged "Unassigned" and listed on stderr so it can be added to nations.json.
 """
 import json, re, sys, html, urllib.request, datetime
 from pathlib import Path
@@ -120,6 +124,17 @@ def main():
     for c in cls.values():
         by_series.setdefault(c.get("series"), c)
 
+    nat_path = ROOT / "data" / "nations.json"
+    nat = json.loads(nat_path.read_text()) if nat_path.exists() else {}
+    unassigned = []
+
+    def nations_for(key, series, strand):
+        for table, k in (("episodes", key), ("series", series), ("strands", strand)):
+            v = nat.get(table, {}).get(k)
+            if v: return list(v)
+        unassigned.append(f"{key}  {series}")
+        return ["Unassigned"]
+
     apple = apple_links()
     episodes, unsorted_titles = [], []
 
@@ -165,7 +180,8 @@ def main():
             "ap": link,
             "s": c["series"], "st": c["strand"], "e": c["era"],
             "th": [t for t in (c.get("theme"), c.get("theme2")) if t],
-            "r": c["region"], "y0": c["start"], "y1": c["end"],
+            "r": c["region"], "c": nations_for(key, c["series"], c["strand"]),
+            "y0": c["start"], "y1": c["end"],
             "sub": c.get("subject", ""), "cf": c.get("confidence", "medium"),
         })
 
@@ -187,12 +203,16 @@ def main():
                     for n in STRAND_ORDER if tally("st").get(n)],
         "themes": sorted(tally("th").items(), key=lambda kv: -kv[1]),
         "regions": sorted(tally("r").items(), key=lambda kv: -kv[1]),
+        "nations": sorted(tally("c").items(), key=lambda kv: (-kv[1], kv[0])),
         "episodes": episodes,
     }
     out = ROOT / "data" / "episodes.json"
     out.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     print(f"wrote {out.relative_to(ROOT)}: {len(episodes)} episodes, "
           f"{len(payload['eras'])} eras, {len(payload['strands'])} strands")
+    if unassigned:
+        print(f"{len(unassigned)} episode(s) with no nation yet (add to data/nations.json):", file=sys.stderr)
+        for t in unassigned: print("  " + t, file=sys.stderr)
     if unsorted_titles:
         print(f"{len(unsorted_titles)} unclassified episode(s):", file=sys.stderr)
         for t in unsorted_titles: print("  " + t, file=sys.stderr)

@@ -92,6 +92,14 @@ button.ctl.on{background:var(--accent);color:var(--accent-ink);border-color:var(
 .chip:hover{border-color:var(--accent-2)}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .chip .n{font-size:.68rem;opacity:.65}
+.linkbtn{background:none;border:0;padding:.35rem 0 0;font:inherit;font-size:.78rem;color:var(--accent);cursor:pointer;text-decoration:underline}
+.nbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;margin-bottom:.6rem}
+.nbar .hint{margin:0;flex:1 1 20rem}
+.nsegs{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;flex:0 0 auto}
+.nseg{font:inherit;font-size:.78rem;padding:.3rem .75rem;background:var(--card);color:inherit;border:0;cursor:pointer}
+.nseg+.nseg{border-left:1px solid var(--border)}
+.nseg[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.tag.nat{border-color:var(--accent-2)}
 .chip[aria-pressed="true"] .n{opacity:.85}
 .rangerow{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-family:var(--sans);font-size:.8rem}
 .rangerow input[type=number]{width:6.5rem;padding:.35rem .5rem;border:1px solid var(--border-2);
@@ -279,6 +287,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
     <button class="tab" role="tab" data-view="timeline" aria-selected="true">Timeline</button>
     <button class="tab" role="tab" data-view="arcs" aria-selected="false">Story arcs<span class="tcount" id="c-arcs"></span></button>
     <button class="tab" role="tab" data-view="eras" aria-selected="false">Eras<span class="tcount" id="c-eras"></span></button>
+    <button class="tab" role="tab" data-view="nations" aria-selected="false">Nations<span class="tcount" id="c-nations"></span></button>
     <button class="tab" role="tab" data-view="themes" aria-selected="false">Themes<span class="tcount" id="c-themes"></span></button>
     <button class="tab" role="tab" data-view="series" aria-selected="false">Series<span class="tcount" id="c-series"></span></button>
     <button class="tab" role="tab" data-view="all" aria-selected="false">All episodes</button>
@@ -323,6 +332,8 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
       </div>
       <div class="fgroup"><div class="flabel">Era</div><div class="chips" id="f-era"></div></div>
       <div class="fgroup"><div class="flabel">Theme</div><div class="chips" id="f-theme"></div></div>
+      <div class="fgroup"><div class="flabel">Nation or kingdom</div><div class="chips" id="f-nation"></div>
+        <button class="linkbtn" id="nationMore" type="button" hidden></button></div>
       <div class="fgroup"><div class="flabel">Region</div><div class="chips" id="f-region"></div></div>
       <div class="fgroup">
         <div class="flabel">Length</div>
@@ -350,6 +361,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
   <section class="view active" id="v-timeline"></section>
   <section class="view" id="v-arcs"></section>
   <section class="view" id="v-eras"></section>
+  <section class="view" id="v-nations"></section>
   <section class="view" id="v-themes"></section>
   <section class="view" id="v-series"></section>
   <section class="view" id="v-all"></section>
@@ -408,7 +420,7 @@ function setDone(k,on){
   else{delete prog.listened[k];if(SYNCED.listened[k])prog.off[k]=Date.now();}}
 var ui=readLS(LS_UI,null)||{};
 function saveProg(){writeLS(LS_PROG,prog);}
-function saveUI(){writeLS(LS_UI,{view:state.view,sort:state.sort,theme:ui.theme});}
+function saveUI(){writeLS(LS_UI,{view:state.view,sort:state.sort,nsort:state.nsort,theme:ui.theme});}
 
 /* ------------------------------------------------------------------ helpers */
 var $=function(s,r){return (r||document).querySelector(s);};
@@ -426,18 +438,18 @@ function toast(msg){var t=$("#toast");t.textContent=msg;t.classList.add("show");
 
 /* ------------------------------------------------------------------ state */
 var DATA=null, EPS=[], BYKEY={};
-var state={view:ui.view||"timeline",q:"",sort:ui.sort||"rel-desc",
-  f:{status:{},era:{},theme:{},region:{},dur:{}},y0:null,y1:null};
+var state={view:ui.view||"timeline",nsort:ui.nsort||"count",q:"",sort:ui.sort||"rel-desc",
+  f:{status:{},era:{},theme:{},region:{},nation:{},dur:{}},y0:null,y1:null};
 var PAGE=60, shown=PAGE;
 
-function activeCount(){var n=0;["status","era","theme","region","dur"].forEach(function(k){
+function activeCount(){var n=0;["status","era","theme","region","nation","dur"].forEach(function(k){
   n+=Object.keys(state.f[k]).length;});if(state.y0!=null)n++;if(state.y1!=null)n++;return n;}
 
 /* ------------------------------------------------------------------ filtering */
 function tokens(q){return q.toLowerCase().split(/\s+/).filter(Boolean);}
 function haystack(e){
   if(e._h)return e._h;
-  e._h=(e.ft+" "+e.s+" "+e.st+" "+e.e+" "+e.r+" "+(e.sub||"")+" "+e.th.join(" ")+" "+
+  e._h=(e.ft+" "+e.s+" "+e.st+" "+e.e+" "+e.r+" "+(e.c||[]).join(" ")+" "+(e.sub||"")+" "+e.th.join(" ")+" "+
         (e.desc||"")+" "+fmtYear(e.y0)+" "+fmtYear(e.y1)).toLowerCase();
   return e._h;}
 function matches(e){
@@ -457,6 +469,9 @@ function matches(e){
     if(!ok)return false;}
   if(Object.keys(f.era).length&&!f.era[e.e])return false;
   if(Object.keys(f.region).length&&!f.region[e.r])return false;
+  var na=Object.keys(f.nation);
+  if(na.length){var nh=false;for(var q2=0;q2<na.length;q2++){if((e.c||[]).indexOf(na[q2])>=0)nh=true;}
+    if(!nh)return false;}
   var th=Object.keys(f.theme);
   if(th.length){var hit=false;for(var m=0;m<th.length;m++){if(e.th.indexOf(th[m])>=0)hit=true;}
     if(!hit)return false;}
@@ -513,7 +528,7 @@ function epHTML(e){
   tags+='<span class="tag era" data-f="era" data-v="'+esc(e.e)+'">'+esc(e.e)+'</span>';
   tags+='<span class="tag plain">'+esc(fmtSpan(e.y0,e.y1))+'</span>';
   e.th.forEach(function(t){tags+='<span class="tag" data-f="theme" data-v="'+esc(t)+'">'+esc(t)+'</span>';});
-  tags+='<span class="tag" data-f="region" data-v="'+esc(e.r)+'">'+esc(e.r)+'</span>';
+  (e.c||[]).forEach(function(n){tags+='<span class="tag nat" data-f="nation" data-v="'+esc(n)+'">'+esc(n)+'</span>';});
   tags+='<span class="tag plain">'+fmtDur(e.dur)+'</span>';
   tags+='<span class="tag plain">'+fmtDate(e.d)+'</span>';
   return '<article class="ep'+(done?" done":"")+'" data-k="'+esc(e.k)+'">'+
@@ -667,6 +682,38 @@ function renderThemes(list){
     return grpHTML(id,k,eps.length+" episodes",pbar(p),eps,OPEN[id]?seriesGroups(eps):null);
   }).join("");}
 
+var NATION_LAST={"Worldwide":1,"Unassigned":1};
+function renderNations(list){
+  if(!list.length)return '<div class="empty">No episodes match.</div>';
+  var m={},keys=[];
+  list.forEach(function(e){(e.c&&e.c.length?e.c:["Unassigned"]).forEach(function(n){
+    if(!m[n]){m[n]=[];keys.push(n);}m[n].push(e);});});
+  /* A nation's "typical" date is the median start year of its episodes, so one
+     outlier (a 30,000 BC special filed under England) does not drag it to the top. */
+  var first={},mode={};
+  keys.forEach(function(k){
+    var ys=m[k].map(function(x){return x.y0;}).sort(function(a,b){return a-b;});
+    first[k]=ys[Math.floor(ys.length/2)];
+    var c={},best="",bn=0;
+    m[k].forEach(function(x){c[x.e]=(c[x.e]||0)+1;if(c[x.e]>bn){bn=c[x.e];best=x.e;}});
+    mode[k]=best;});
+  var by=state.nsort;
+  keys.sort(function(a,b){
+    var la=NATION_LAST[a]?1:0,lb=NATION_LAST[b]?1:0;if(la!==lb)return la-lb;
+    if(by==="az")return a.localeCompare(b);
+    if(by==="hist")return (first[a]-first[b])||a.localeCompare(b);
+    return (m[b].length-m[a].length)||a.localeCompare(b);});
+  var seg=[["count","Most episodes"],["az","A–Z"],["hist","By period"]].map(function(o){
+    return '<button class="nseg" data-nsort="'+o[0]+'" aria-pressed="'+(by===o[0])+'">'+o[1]+'</button>';}).join("");
+  var html='<div class="nbar"><p class="hint">Every episode filed under the nation, country or kingdom it is about. '+
+    'Episodes that span several (the Hundred Years’ War, say) appear under each.</p>'+
+    '<div class="nsegs" role="group" aria-label="Order nations">'+seg+'</div></div>';
+  return html+keys.map(function(k){
+    var eps=m[k],p=progressOf(eps),id="nation:"+k;
+    var sub=eps.length+" episode"+(eps.length>1?"s":"")+(NATION_LAST[k]||eps.length<3?"":" · mostly "+mode[k]);
+    return grpHTML(id,k,sub,pbar(p),eps,OPEN[id]?seriesGroups(eps):null);
+  }).join("");}
+
 function renderSeries(list){
   if(!list.length)return '<div class="empty">No episodes match.</div>';
   return '<p class="hint">Every series, '+(state.sort.indexOf("hist")===0?
@@ -773,6 +820,7 @@ function render(){
   if(v==="eras")host.innerHTML=renderNested(list,"e",DATA.eras.map(function(x){return x.name;}),
     function(k,eps){var m="";DATA.eras.forEach(function(x){if(x.name===k)m=x.range;});
       return m+" · "+eps.length+" episodes";});
+  if(v==="nations")host.innerHTML=renderNations(list);
   if(v==="themes")host.innerHTML=renderThemes(list);
   if(v==="series")host.innerHTML=renderSeries(list);
   if(v==="all")host.innerHTML=renderAll(list);
@@ -797,7 +845,7 @@ function updateStats(){
 function setFilter(kind,val,on){
   var f=state.f[kind];if(!f)return;
   if(on)f[val]=1;else delete f[val];
-  shown=PAGE;syncChips();render();}
+  shown=PAGE;if(kind==="nation")nationChips();else syncChips();render();}
 function syncChips(){
   $$(".chip").forEach(function(c){
     var kind=c.parentNode.id.replace("f-",""),v=c.dataset.v;
@@ -805,6 +853,11 @@ function syncChips(){
 
 document.addEventListener("click",function(ev){
   var t=ev.target;
+
+  var ns=t.closest(".nseg");
+  if(ns){state.nsort=ns.dataset.nsort;saveUI();render();return;}
+
+  if(t.id==="nationMore"){NATION_ALL=!NATION_ALL;nationChips();return;}
 
   var tab=t.closest(".tab");
   if(tab){state.view=tab.dataset.view;shown=PAGE;saveUI();render();
@@ -820,7 +873,7 @@ document.addEventListener("click",function(ev){
 
   if(t.closest("#clearBtn")){
     state.q="";$("#q").value="";state.y0=state.y1=null;$("#y0").value="";$("#y1").value="";
-    ["status","era","theme","region","dur"].forEach(function(k){state.f[k]={};});
+    ["status","era","theme","region","nation","dur"].forEach(function(k){state.f[k]={};});
     shown=PAGE;syncChips();render();return;}
 
   if(t.closest("#yclear")){state.y0=state.y1=null;$("#y0").value="";$("#y1").value="";render();return;}
@@ -1103,6 +1156,15 @@ function loadSynced(){
     .catch(function(){});}
 
 /* ------------------------------------------------------------------ boot */
+var NATION_ALL=false,NATION_TOP=24;
+function nationChips(){
+  var all=(DATA&&DATA.nations)||[];
+  var show=NATION_ALL?all:all.filter(function(x,i){return i<NATION_TOP||(state.f.nation&&state.f.nation[x[0]]);});
+  chips("f-nation",show);
+  var b=$("#nationMore");
+  if(all.length>NATION_TOP){b.hidden=false;b.textContent=NATION_ALL?"Show fewer":"Show all "+all.length+" nations";}
+  else b.hidden=true;
+  syncChips();}
 function chips(el,items,counts){
   $("#"+el).innerHTML=items.map(function(it){
     var name=it[0]!==undefined&&it.length===2?it[0]:it;
@@ -1124,6 +1186,8 @@ load.then(function(d){
   chips("f-era",d.eras.map(function(x){return [x.name,x.count];}));
   chips("f-theme",d.themes);
   chips("f-region",d.regions);
+  nationChips();
+  $("#c-nations").textContent=(d.nations||[]).filter(function(x){return !NATION_LAST[x[0]];}).length;
   $("#c-arcs").textContent=d.strands.length;
   $("#c-eras").textContent=d.eras.length;
   $("#c-themes").textContent=d.themes.length;

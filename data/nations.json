@@ -1,0 +1,1615 @@
+{
+ "_doc": "Nation / country / kingdom tags. Resolution order: episodes (per-episode key) > series > strand default. Used by scripts/build_data.py; edit freely.",
+ "episodes": {
+  "n255": [
+   "Qatar"
+  ],
+  "n256": [
+   "Germany"
+  ],
+  "n257": [
+   "Australia"
+  ],
+  "n258": [
+   "Costa Rica"
+  ],
+  "n259": [
+   "Persia & Iran",
+   "United Kingdom"
+  ],
+  "n260": [
+   "Croatia",
+   "Rome"
+  ],
+  "n261": [
+   "Uruguay"
+  ],
+  "n262": [
+   "Tunisia",
+   "Carthage"
+  ],
+  "n263": [
+   "United States",
+   "United Kingdom"
+  ],
+  "n264": [
+   "Mexico"
+  ],
+  "n265": [
+   "Saudi Arabia",
+   "Arabia & the Caliphates"
+  ],
+  "n266": [
+   "South Korea"
+  ],
+  "n267": [
+   "Wales"
+  ],
+  "n268": [
+   "Brazil"
+  ],
+  "n269": [
+   "Ghana"
+  ],
+  "n270": [
+   "Poland"
+  ],
+  "n271": [
+   "Belgium"
+  ],
+  "n272": [
+   "Senegal",
+   "France"
+  ],
+  "n273": [
+   "Portugal"
+  ],
+  "n274": [
+   "Switzerland",
+   "France"
+  ],
+  "n275": [
+   "Argentina",
+   "Wales"
+  ],
+  "n276": [
+   "Netherlands"
+  ],
+  "n277": [
+   "Japan"
+  ],
+  "n278": [
+   "France"
+  ],
+  "n279": [
+   "Cameroon",
+   "Russia"
+  ],
+  "n280": [
+   "Serbia"
+  ],
+  "n281": [
+   "Spain",
+   "Arabia & the Caliphates"
+  ],
+  "n282": [
+   "Morocco",
+   "Spain",
+   "France"
+  ],
+  "n283": [
+   "Ecuador",
+   "United Kingdom"
+  ],
+  "n284": [
+   "Denmark",
+   "Germany"
+  ],
+  "n285": [
+   "Canada"
+  ],
+  "n286": [
+   "England"
+  ],
+  "n677": [
+   "United States"
+  ],
+  "n678": [
+   "United Kingdom"
+  ],
+  "n679": [
+   "Germany"
+  ],
+  "n680": [
+   "Netherlands"
+  ],
+  "n681": [
+   "Brazil"
+  ],
+  "n682": [
+   "South Africa"
+  ],
+  "n514": [
+   "United Kingdom"
+  ],
+  "n515": [
+   "United Kingdom",
+   "France"
+  ],
+  "n516": [
+   "United Kingdom",
+   "France"
+  ],
+  "n517": [
+   "United Kingdom",
+   "France",
+   "Egypt"
+  ],
+  "n518": [
+   "United Kingdom",
+   "France",
+   "Egypt"
+  ],
+  "n608": [
+   "Italy",
+   "United Kingdom"
+  ],
+  "n609": [
+   "United Kingdom",
+   "France"
+  ],
+  "n610": [
+   "Denmark",
+   "United Kingdom"
+  ],
+  "n611": [
+   "United Kingdom",
+   "France"
+  ],
+  "n612": [
+   "United Kingdom",
+   "France"
+  ],
+  "n613": [
+   "United Kingdom",
+   "France",
+   "Spain"
+  ],
+  "n440": [
+   "United Kingdom"
+  ],
+  "n441": [
+   "United Kingdom",
+   "Italy"
+  ],
+  "n442": [
+   "United Kingdom",
+   "Italy"
+  ],
+  "n443": [
+   "Greece",
+   "United Kingdom"
+  ],
+  "n594": [
+   "Belgium",
+   "Germany"
+  ],
+  "n595": [
+   "France",
+   "Germany"
+  ],
+  "n596": [
+   "France",
+   "Germany"
+  ],
+  "n597": [
+   "Belgium",
+   "Germany",
+   "United Kingdom"
+  ],
+  "n598": [
+   "Russia",
+   "Germany",
+   "Habsburg Empire"
+  ],
+  "n599": [
+   "Habsburg Empire",
+   "Italy"
+  ],
+  "n671": [
+   "France",
+   "Germany"
+  ],
+  "n672": [
+   "Italy",
+   "Habsburg Empire"
+  ],
+  "n673": [
+   "United Kingdom",
+   "Germany"
+  ],
+  "n674": [
+   "Belgium",
+   "Germany",
+   "United Kingdom"
+  ],
+  "n675": [
+   "Ottoman Empire",
+   "United Kingdom"
+  ],
+  "n676": [
+   "Ottoman Empire",
+   "United Kingdom"
+  ],
+  "n469": [
+   "Habsburg Empire",
+   "Germany",
+   "Russia"
+  ],
+  "n470": [
+   "Germany",
+   "Habsburg Empire"
+  ],
+  "n471": [
+   "Habsburg Empire",
+   "Serbia"
+  ],
+  "n472": [
+   "United Kingdom",
+   "Germany"
+  ],
+  "n473": [
+   "Russia"
+  ],
+  "n474": [
+   "United Kingdom",
+   "Germany"
+  ],
+  "n620": [
+   "Germany"
+  ],
+  "n621": [
+   "Germany",
+   "Poland"
+  ],
+  "n622": [
+   "Germany",
+   "France"
+  ],
+  "n623": [
+   "United Kingdom",
+   "Germany"
+  ],
+  "n292": [
+   "Germany"
+  ],
+  "n306": [
+   "Spain",
+   "Portugal"
+  ],
+  "n380": [
+   "United Kingdom"
+  ],
+  "n381": [
+   "Australia",
+   "Hawaii",
+   "United Kingdom"
+  ],
+  "n239": [
+   "United Kingdom"
+  ],
+  "n240": [
+   "United Kingdom",
+   "India",
+   "Sudan"
+  ],
+  "n241": [
+   "United Kingdom",
+   "South Africa"
+  ],
+  "n584": [
+   "Scotland",
+   "France"
+  ],
+  "n585": [
+   "Scotland",
+   "England"
+  ],
+  "n691": [
+   "England"
+  ],
+  "n692": [
+   "France",
+   "England"
+  ],
+  "n693": [
+   "England",
+   "Spain"
+  ],
+  "n696": [
+   "England",
+   "Scotland"
+  ],
+  "n548": [
+   "England"
+  ],
+  "n549": [
+   "England",
+   "Scandinavia"
+  ],
+  "n550": [
+   "France"
+  ],
+  "n551": [
+   "England",
+   "France"
+  ],
+  "n552": [
+   "Norway",
+   "Russia"
+  ],
+  "n553": [
+   "Norway",
+   "Byzantine Empire"
+  ],
+  "n221": [
+   "United Kingdom",
+   "Italy",
+   "Switzerland"
+  ],
+  "n222": [
+   "United Kingdom"
+  ],
+  "n223": [
+   "Spain",
+   "France",
+   "Italy"
+  ],
+  "n336": [
+   "Ireland",
+   "England"
+  ],
+  "n337": [
+   "Ireland",
+   "United Kingdom"
+  ],
+  "n338": [
+   "Ireland",
+   "United Kingdom"
+  ],
+  "n339": [
+   "Ireland",
+   "United Kingdom"
+  ],
+  "n346": [
+   "England",
+   "France"
+  ],
+  "n345": [
+   "Israel & Judea",
+   "Egypt"
+  ],
+  "n327": [
+   "Worldwide"
+  ],
+  "n328": [
+   "England"
+  ],
+  "n329": [
+   "United Kingdom"
+  ],
+  "n26": [
+   "Worldwide"
+  ],
+  "n331": [
+   "United States"
+  ],
+  "n402": [
+   "Worldwide"
+  ],
+  "n10": [
+   "United Kingdom"
+  ],
+  "n116": [
+   "Ancient Greece"
+  ],
+  "n117": [
+   "Ancient Greece",
+   "Persia & Iran"
+  ],
+  "t12-days-alfred-the-great-and-pepys-fanatiques": [
+   "England"
+  ],
+  "t12-days-death-of-edward-the-confessor-and-the-dreyfus-affair": [
+   "England",
+   "France"
+  ],
+  "t12-days-solomon-northup-and-albert-camus": [
+   "United States",
+   "France"
+  ],
+  "t12-days-martin-luther-and-j-r-r-tolkien": [
+   "Germany",
+   "United Kingdom"
+  ],
+  "t12-days-reconquest-of-spain-and-the-old-queen-of-hawaii": [
+   "Spain",
+   "Hawaii"
+  ],
+  "t12-days-nero-s-succession-and-the-fall-of-the-byzantine-empire": [
+   "Rome",
+   "Byzantine Empire",
+   "Ottoman Empire"
+  ],
+  "t12-days-jean-b-del-bokassa-and-the-memory-of-pandemics": [
+   "Central African Republic",
+   "France"
+  ],
+  "t12-days-the-battle-of-wakefield-and-emperor-karl-i": [
+   "England",
+   "Habsburg Empire"
+  ],
+  "t12-days-the-murder-of-thomas-becket-and-the-wounded-knee-massacre": [
+   "England",
+   "United States"
+  ],
+  "t12-days-massacre-of-the-innocents-and-the-tay-bridge-disaster": [
+   "Israel & Judea",
+   "Scotland"
+  ],
+  "t12-days-port-wine-and-darwin-sets-sail": [
+   "Portugal",
+   "United Kingdom"
+  ],
+  "t12-days-good-king-wenceslas-and-the-first-gilbert-sullivan": [
+   "Czech Lands",
+   "United Kingdom"
+  ],
+  "t12-days-coronation-of-charlemagne-and-the-collapse-of-the-soviet-union": [
+   "France",
+   "Germany",
+   "Russia"
+  ],
+  "n252": [
+   "United Kingdom",
+   "Argentina",
+   "Uruguay",
+   "Brazil"
+  ],
+  "n253": [
+   "Germany",
+   "Brazil"
+  ],
+  "n254": [
+   "Argentina",
+   "United Kingdom",
+   "Worldwide"
+  ],
+  "n47": [
+   "United Kingdom",
+   "France",
+   "Germany"
+  ]
+ },
+ "series": {
+  "Warlords of the West": [
+   "France",
+   "Spain",
+   "Arabia & the Caliphates"
+  ],
+  "Justinian and Theodora": [
+   "Byzantine Empire"
+  ],
+  "Charlemagne": [
+   "France",
+   "Germany"
+  ],
+  "Empress Theophanu": [
+   "Byzantine Empire",
+   "Germany"
+  ],
+  "Americanisation": [
+   "United States",
+   "United Kingdom"
+  ],
+  "Titanic": [
+   "United Kingdom",
+   "United States"
+  ],
+  "The World Cup of Gods": [
+   "Worldwide"
+  ],
+  "Empires": [
+   "Worldwide"
+  ],
+  "Top Ten Eunuchs": [
+   "Worldwide"
+  ],
+  "History's Greatest Dogs": [
+   "Worldwide"
+  ],
+  "History's Biggest Questions with Dan Carlin": [
+   "Worldwide"
+  ],
+  "Walls and Borders": [
+   "Worldwide"
+  ],
+  "History's Greatest Monkeys": [
+   "Worldwide"
+  ],
+  "Counterfactual History": [
+   "Worldwide"
+  ],
+  "Weird Wars": [
+   "Worldwide"
+  ],
+  "The Lessons of History": [
+   "Worldwide"
+  ],
+  "Golden Ages": [
+   "Worldwide"
+  ],
+  "Historical Love Island": [
+   "Worldwide"
+  ],
+  "The Most Disastrous Party in History": [
+   "Worldwide"
+  ],
+  "Top Ten Mistresses": [
+   "Worldwide"
+  ],
+  "Greatness": [
+   "Worldwide"
+  ],
+  "Civil War": [
+   "Worldwide"
+  ],
+  "Culture Wars": [
+   "Worldwide"
+  ],
+  "England v Italy": [
+   "England",
+   "Italy",
+   "Rome"
+  ],
+  "12 Days of Christmas": [
+   "Worldwide"
+  ],
+  "Christmas": [
+   "United Kingdom"
+  ],
+  "The UK's Best Churches": [
+   "United Kingdom"
+  ],
+  "World Cup of Kings and Queens": [
+   "England"
+  ],
+  "Christmas Churches": [
+   "England"
+  ],
+  "The Prime Ministers' World Cup": [
+   "United Kingdom"
+  ],
+  "Children's History": [
+   "Worldwide"
+  ],
+  "Historical Fiction": [
+   "Worldwide"
+  ],
+  "History as Entertainment": [
+   "Worldwide"
+  ],
+  "Podcast Extras": [
+   "Worldwide"
+  ],
+  "2022: A History": [
+   "Worldwide"
+  ],
+  "The History of India in 10 Buildings": [
+   "India"
+  ],
+  "China": [
+   "China"
+  ],
+  "The First Emperor of China": [
+   "China"
+  ],
+  "The Golden Age of Japan": [
+   "Japan"
+  ],
+  "The History of Japan": [
+   "Japan"
+  ],
+  "Dawn of the Samurai": [
+   "Japan"
+  ],
+  "Genghis Khan": [
+   "Mongol Empire",
+   "China"
+  ],
+  "Hwang Jini": [
+   "South Korea"
+  ],
+  "The Taj Mahal": [
+   "India"
+  ],
+  "The Enlightenment": [
+   "France"
+  ],
+  "Abram Gannibal": [
+   "Cameroon",
+   "Russia"
+  ],
+  "The Great Northern War": [
+   "Sweden",
+   "Russia",
+   "Ukraine"
+  ],
+  "London's Golden Age": [
+   "United Kingdom"
+  ],
+  "The Marquis de Sade": [
+   "France"
+  ],
+  "Australia Before Cook": [
+   "Australia"
+  ],
+  "The Fall of the Aztecs": [
+   "Mexico",
+   "Spain"
+  ],
+  "Columbus": [
+   "Spain",
+   "Caribbean"
+  ],
+  "The Fall of the Incas": [
+   "Peru",
+   "Spain"
+  ],
+  "Aguirre, the Wrath of God": [
+   "Spain",
+   "Peru"
+  ],
+  "The Beaver Wars": [
+   "Canada",
+   "United States"
+  ],
+  "Captain Cook": [
+   "United Kingdom",
+   "Australia"
+  ],
+  "Wine": [
+   "Worldwide"
+  ],
+  "Pigeons": [
+   "Worldwide"
+  ],
+  "The History of Beards": [
+   "Worldwide"
+  ],
+  "The History of Chocolate": [
+   "Worldwide"
+  ],
+  "Coronations": [
+   "United Kingdom"
+  ],
+  "Paris": [
+   "France"
+  ],
+  "Chatham High Street": [
+   "England"
+  ],
+  "London Week": [
+   "England"
+  ],
+  "Valentine's Day": [
+   "Rome",
+   "England"
+  ],
+  "Exams": [
+   "China",
+   "England"
+  ],
+  "The North South Divide": [
+   "England"
+  ],
+  "The History of Italian Food": [
+   "Italy"
+  ],
+  "Childbirth": [
+   "England"
+  ],
+  "The History of Food": [
+   "England"
+  ],
+  "Drink": [
+   "England"
+  ],
+  "Smuggling": [
+   "England"
+  ],
+  "The Suit and Savile Row": [
+   "England"
+  ],
+  "Harry Potter": [
+   "United Kingdom"
+  ],
+  "Sex in the City": [
+   "England"
+  ],
+  "Beef and Liberty": [
+   "England"
+  ],
+  "Killer Fashion": [
+   "Worldwide"
+  ],
+  "The History of Holidays": [
+   "United Kingdom"
+  ],
+  "The Regency Revolution": [
+   "United Kingdom"
+  ],
+  "Teenagers": [
+   "United States",
+   "United Kingdom"
+  ],
+  "Sparta": [
+   "Ancient Greece"
+  ],
+  "Greece vs Persia": [
+   "Ancient Greece",
+   "Persia & Iran"
+  ],
+  "Persia": [
+   "Persia & Iran"
+  ],
+  "Athens and the Birth of Democracy": [
+   "Ancient Greece"
+  ],
+  "Thermopylae & Salamis": [
+   "Ancient Greece",
+   "Persia & Iran"
+  ],
+  "Herodotus": [
+   "Ancient Greece",
+   "Persia & Iran"
+  ],
+  "Alexander the Great": [
+   "Ancient Greece",
+   "Persia & Iran"
+  ],
+  "The Library of Alexandria": [
+   "Egypt",
+   "Ancient Greece"
+  ],
+  "Troy": [
+   "Ancient Greece"
+  ],
+  "Helen of Troy": [
+   "Ancient Greece"
+  ],
+  "The Odyssey": [
+   "Ancient Greece"
+  ],
+  "Greek Myths": [
+   "Ancient Greece"
+  ],
+  "The History of Portugal": [
+   "Portugal"
+  ],
+  "The Kaaba": [
+   "Saudi Arabia",
+   "Arabia & the Caliphates"
+  ],
+  "Muhammad": [
+   "Saudi Arabia",
+   "Arabia & the Caliphates"
+  ],
+  "Baghdad": [
+   "Arabia & the Caliphates"
+  ],
+  "The Caliphate of Cordoba": [
+   "Spain",
+   "Arabia & the Caliphates"
+  ],
+  "The Jewish Revolt": [
+   "Israel & Judea",
+   "Rome"
+  ],
+  "Jesus Christ": [
+   "Israel & Judea",
+   "Rome"
+  ],
+  "St George": [
+   "Rome"
+  ],
+  "Saint Patrick": [
+   "Ireland",
+   "England"
+  ],
+  "St Cuthbert": [
+   "England"
+  ],
+  "The Brazilian Empire": [
+   "Brazil",
+   "Portugal"
+  ],
+  "The Last Emperor of Mexico": [
+   "Mexico",
+   "France",
+   "Habsburg Empire"
+  ],
+  "Evita": [
+   "Argentina"
+  ],
+  "The Costa Rican Civil War": [
+   "Costa Rica"
+  ],
+  "The Tupamaros": [
+   "Uruguay"
+  ],
+  "The 1973 Chilean Coup": [
+   "Chile",
+   "United States"
+  ],
+  "Macbeth": [
+   "Scotland"
+  ],
+  "1066": [
+   "England",
+   "France"
+  ],
+  "Empress Matilda": [
+   "England",
+   "France"
+  ],
+  "The Hundred Years' War": [
+   "England",
+   "France"
+  ],
+  "Joan of Arc": [
+   "France",
+   "England"
+  ],
+  "The Cathars": [
+   "France"
+  ],
+  "The Murder of William of Norwich": [
+   "England"
+  ],
+  "Catherine of Siena": [
+   "Italy"
+  ],
+  "Burgundy": [
+   "Belgium",
+   "France"
+  ],
+  "Ireland": [
+   "Ireland",
+   "United Kingdom"
+  ],
+  "The History of Wales": [
+   "Wales"
+  ],
+  "Anglo-German Relations": [
+   "United Kingdom",
+   "Germany"
+  ],
+  "Anglo-American Relations": [
+   "United Kingdom",
+   "United States"
+  ],
+  "The Falklands War": [
+   "United Kingdom",
+   "Argentina"
+  ],
+  "England and Englishness": [
+   "England"
+  ],
+  "The Irish War of Independence": [
+   "Ireland",
+   "United Kingdom"
+  ],
+  "The Irish Civil War": [
+   "Ireland"
+  ],
+  "The Troubles": [
+   "United Kingdom",
+   "Ireland"
+  ],
+  "French History on Film": [
+   "France"
+  ],
+  "Classics": [
+   "Rome",
+   "Ancient Greece"
+  ],
+  "National Anthems": [
+   "Worldwide"
+  ],
+  "Mozart": [
+   "Habsburg Empire"
+  ],
+  "Beethoven": [
+   "Germany",
+   "Habsburg Empire"
+  ],
+  "Wagner": [
+   "Germany"
+  ],
+  "Tchaikovsky": [
+   "Russia"
+  ],
+  "The History of Comedy": [
+   "United Kingdom"
+  ],
+  "Gone with the Wind": [
+   "United States"
+  ],
+  "Agatha Christie": [
+   "United Kingdom"
+  ],
+  "Walt Disney": [
+   "United States"
+  ],
+  "Marilyn Monroe": [
+   "United States"
+  ],
+  "Superheroes": [
+   "United States"
+  ],
+  "Disneyland": [
+   "United States"
+  ],
+  "Paul McCartney": [
+   "United Kingdom"
+  ],
+  "Sixties Fashion": [
+   "United Kingdom"
+  ],
+  "James Bond": [
+   "United Kingdom"
+  ],
+  "The Beatles": [
+   "United Kingdom"
+  ],
+  "The Rolling Stones": [
+   "United Kingdom"
+  ],
+  "Romans in Space": [
+   "United States"
+  ],
+  "Disco": [
+   "United States"
+  ],
+  "Game of Thrones": [
+   "Worldwide"
+  ],
+  "Disney's Legacy": [
+   "United States"
+  ],
+  "Dragons": [
+   "Worldwide"
+  ],
+  "The History of the Future": [
+   "Worldwide"
+  ],
+  "Atlantis": [
+   "Ancient Greece"
+  ],
+  "King Arthur": [
+   "England",
+   "Wales"
+  ],
+  "Magic and the British": [
+   "United Kingdom"
+  ],
+  "The Loch Ness Monster": [
+   "Scotland"
+  ],
+  "The Wonders of Poland": [
+   "Poland"
+  ],
+  "Pope Joan": [
+   "Italy",
+   "Germany"
+  ],
+  "Robin Hood": [
+   "England"
+  ],
+  "The Freemasons": [
+   "Worldwide"
+  ],
+  "The Day of the Dead": [
+   "Mexico"
+  ],
+  "Ghosts": [
+   "United Kingdom"
+  ],
+  "Conspiracy Theories": [
+   "Worldwide"
+  ],
+  "The Man in the Iron Mask": [
+   "France"
+  ],
+  "Piltdown Man": [
+   "England"
+  ],
+  "The Rector of Stiffkey": [
+   "England"
+  ],
+  "The Somerton Man": [
+   "Australia"
+  ],
+  "Nelson": [
+   "United Kingdom",
+   "France"
+  ],
+  "Lady Emma Hamilton": [
+   "United Kingdom",
+   "Italy"
+  ],
+  "Young Napoleon": [
+   "France"
+  ],
+  "Lord Byron": [
+   "United Kingdom"
+  ],
+  "The Jena Set": [
+   "Germany"
+  ],
+  "Trafalgar": [
+   "United Kingdom",
+   "France",
+   "Spain"
+  ],
+  "Napoleon in Egypt": [
+   "France",
+   "Egypt"
+  ],
+  "Neanderthals": [
+   "Worldwide"
+  ],
+  "Paganism": [
+   "England"
+  ],
+  "The Vinca Culture": [
+   "Serbia"
+  ],
+  "The World's First City": [
+   "Mesopotamia"
+  ],
+  "Stonehenge": [
+   "England"
+  ],
+  "Babylon": [
+   "Mesopotamia"
+  ],
+  "Holy Relics": [
+   "Israel & Judea"
+  ],
+  "The Habsburgs": [
+   "Habsburg Empire"
+  ],
+  "Amsterdam": [
+   "Netherlands"
+  ],
+  "Witches": [
+   "Worldwide"
+  ],
+  "Luther": [
+   "Germany"
+  ],
+  "Calvin's Geneva": [
+   "Switzerland",
+   "France"
+  ],
+  "The Maid of Holland": [
+   "Netherlands",
+   "Spain"
+  ],
+  "Communism": [
+   "Russia",
+   "China"
+  ],
+  "Ukraine and Russia": [
+   "Russia",
+   "Ukraine"
+  ],
+  "Climate & Weather": [
+   "Worldwide"
+  ],
+  "Disease and Civilisation": [
+   "Worldwide"
+  ],
+  "Climate Apocalypse": [
+   "Worldwide"
+  ],
+  "Medieval Science": [
+   "Worldwide"
+  ],
+  "Media and Social Change": [
+   "Worldwide"
+  ],
+  "Dinosaurs": [
+   "United Kingdom"
+  ],
+  "Darwin and the Galapagos": [
+   "United Kingdom",
+   "Ecuador"
+  ],
+  "Louis Le Prince": [
+   "France",
+   "United Kingdom",
+   "United States"
+  ],
+  "Silicon Valley": [
+   "United States"
+  ],
+  "The Moonwalkers": [
+   "United States"
+  ],
+  "Goree and the Slave Trade": [
+   "Senegal",
+   "France"
+  ],
+  "African Amazons": [
+   "Benin"
+  ],
+  "The First Abolitionist": [
+   "United States",
+   "England"
+  ],
+  "The Ancient Olympics": [
+   "Ancient Greece"
+  ],
+  "Cricket": [
+   "England",
+   "India",
+   "Australia"
+  ],
+  "Mad Victorian Sport": [
+   "United Kingdom"
+  ],
+  "The Fight of the Century": [
+   "United Kingdom",
+   "United States"
+  ],
+  "The World Cup": [
+   "Worldwide"
+  ],
+  "The History of Football": [
+   "England"
+  ],
+  "The Modern Olympics": [
+   "Worldwide"
+  ],
+  "History of the World Cup": [
+   "Italy"
+  ],
+  "Afghanistan": [
+   "Afghanistan"
+  ],
+  "The East India Company": [
+   "United Kingdom",
+   "India"
+  ],
+  "The British Empire": [
+   "United Kingdom"
+  ],
+  "The Ashanti Empire": [
+   "Ghana",
+   "United Kingdom"
+  ],
+  "The Seven Years' War": [
+   "United Kingdom",
+   "France",
+   "Germany"
+  ],
+  "General Gordon": [
+   "Sudan",
+   "United Kingdom",
+   "Egypt"
+  ],
+  "The First Anglo-Afghan War": [
+   "Afghanistan",
+   "United Kingdom",
+   "India"
+  ],
+  "Queen Victoria’s Revenge": [
+   "United Kingdom",
+   "Ethiopia"
+  ],
+  "The Welsh Colony in Patagonia": [
+   "Wales",
+   "Argentina"
+  ],
+  "Horror in the Congo": [
+   "Congo",
+   "Belgium"
+  ],
+  "King Solomon's Mines": [
+   "United Kingdom",
+   "South Africa"
+  ],
+  "Heart of Darkness": [
+   "Congo",
+   "United Kingdom"
+  ],
+  "Australian Prime Ministers": [
+   "Australia"
+  ],
+  "The History of Oil": [
+   "Worldwide"
+  ],
+  "Oppenheimer": [
+   "United States"
+  ],
+  "Spies": [
+   "United Kingdom",
+   "Russia"
+  ],
+  "The Vietnam War": [
+   "Vietnam",
+   "United States"
+  ],
+  "The CIA": [
+   "United States"
+  ],
+  "Deng Xiaoping": [
+   "China"
+  ],
+  "East Germany": [
+   "Germany"
+  ],
+  "Germany from Adenauer to Angela": [
+   "Germany"
+  ],
+  "French Presidents": [
+   "France"
+  ],
+  "The Berlin Wall": [
+   "Germany"
+  ],
+  "Mao and the Cultural Revolution": [
+   "China"
+  ],
+  "Paris 1968": [
+   "France"
+  ],
+  "The Carnation Revolution": [
+   "Portugal"
+  ],
+  "The Fall of Saigon": [
+   "Vietnam",
+   "United States"
+  ],
+  "Nuclear Weapons": [
+   "Worldwide"
+  ],
+  "Decolonising Africa": [
+   "Worldwide"
+  ],
+  "The Rif War": [
+   "Morocco",
+   "Spain",
+   "France"
+  ],
+  "The Man Who Escaped Auschwitz": [
+   "Poland",
+   "Germany"
+  ],
+  "The Rescue of the Danish Jews": [
+   "Denmark",
+   "Germany"
+  ],
+  "Gabriele D'Annunzio": [
+   "Italy"
+  ],
+  "The Rise of the Nazis": [
+   "Germany"
+  ],
+  "Hitler": [
+   "Germany"
+  ],
+  "British Fascism": [
+   "United Kingdom"
+  ],
+  "George Orwell": [
+   "United Kingdom"
+  ],
+  "Fascism": [
+   "Italy"
+  ],
+  "1922: The Birth of the Modern World": [
+   "Worldwide"
+  ],
+  "The Nazis in Power": [
+   "Germany"
+  ],
+  "The Nazis' Road to War": [
+   "Germany"
+  ],
+  "The History of Qatar": [
+   "Qatar"
+  ],
+  "Anglo-Iranian Relations": [
+   "Persia & Iran",
+   "United Kingdom"
+  ],
+  "The Oil Weapon": [
+   "Worldwide"
+  ],
+  "Revolution in Iran": [
+   "Persia & Iran"
+  ],
+  "Jan van Eyck": [
+   "Belgium"
+  ],
+  "The Mona Lisa": [
+   "Italy",
+   "France"
+  ],
+  "The Murder of Franz Ferdinand": [
+   "Habsburg Empire",
+   "Serbia"
+  ],
+  "The Second Reich": [
+   "Germany"
+  ],
+  "J.R.R. Tolkien": [
+   "United Kingdom"
+  ],
+  "The Causes of the First World War": [
+   "Germany",
+   "United Kingdom",
+   "France",
+   "Russia",
+   "Habsburg Empire"
+  ],
+  "The First World War": [
+   "Germany",
+   "France",
+   "United Kingdom"
+  ],
+  "The Christmas Truce": [
+   "United Kingdom",
+   "Germany",
+   "France"
+  ],
+  "The Road to the Great War": [
+   "Germany",
+   "Habsburg Empire",
+   "Russia",
+   "France",
+   "United Kingdom"
+  ],
+  "The Western Front": [
+   "France",
+   "Germany",
+   "United Kingdom"
+  ],
+  "The End of the First World War": [
+   "United Kingdom",
+   "Germany"
+  ],
+  "The Roman Conquest of Britain": [
+   "Rome",
+   "England"
+  ],
+  "Carthage vs. Rome": [
+   "Rome",
+   "Carthage"
+  ],
+  "Dido of Carthage": [
+   "Carthage",
+   "Tunisia"
+  ],
+  "Hannibal": [
+   "Carthage",
+   "Rome"
+  ],
+  "Rome's Greatest Enemy": [
+   "Carthage",
+   "Rome"
+  ],
+  "Cleopatra": [
+   "Egypt",
+   "Rome"
+  ],
+  "Diocletian": [
+   "Rome",
+   "Croatia"
+  ],
+  "China and World War II": [
+   "China",
+   "Japan"
+  ],
+  "The Nazis at War": [
+   "Germany"
+  ],
+  "Hitler's War on Poland": [
+   "Germany",
+   "Poland"
+  ],
+  "Monty and Patton": [
+   "United Kingdom",
+   "United States"
+  ],
+  "1940": [
+   "United Kingdom"
+  ],
+  "Operation Barbarossa": [
+   "Germany",
+   "Russia"
+  ],
+  "Wojtek the Bear": [
+   "Poland",
+   "United Kingdom"
+  ],
+  "The White Rose": [
+   "Germany"
+  ],
+  "The Battle of Stalingrad": [
+   "Russia",
+   "Germany"
+  ],
+  "The Battle for Italy": [
+   "Italy"
+  ],
+  "Lee Miller": [
+   "United States",
+   "France",
+   "Germany"
+  ],
+  "The Vikings in the East": [
+   "Russia",
+   "Sweden",
+   "Ukraine"
+  ],
+  "Viking Sorcery": [
+   "Scandinavia"
+  ],
+  "England v Denmark": [
+   "England",
+   "Denmark"
+  ],
+  "Alfred the Great": [
+   "England"
+  ],
+  "The Norse Sagas": [
+   "Scandinavia"
+  ],
+  "Athelstan": [
+   "England"
+  ],
+  "The Road to 1066": [
+   "England",
+   "France",
+   "Scandinavia"
+  ],
+  "The Last Viking": [
+   "Norway",
+   "Byzantine Empire"
+  ],
+  "Mary, Queen of Scots": [
+   "Scotland",
+   "England"
+  ],
+  "Elizabeth I vs The Catholics": [
+   "England",
+   "Spain"
+  ],
+  "Trial of Charles I": [
+   "England",
+   "Scotland"
+  ],
+  "The Charge of the Light Brigade": [
+   "United Kingdom",
+   "Russia",
+   "Ottoman Empire"
+  ],
+  "Revolution in the Soviet Empire": [
+   "Russia",
+   "Hungary"
+  ],
+  "The Suez Crisis": [
+   "Egypt",
+   "United Kingdom",
+   "France",
+   "Israel & Judea"
+  ],
+  "The Terror": [
+   "France"
+  ],
+  "Mad Elections": [
+   "England"
+  ],
+  "England v Ukraine": [
+   "United Kingdom",
+   "Ukraine",
+   "Russia"
+  ],
+  "The Tichborne Claimant": [
+   "United Kingdom",
+   "Australia"
+  ],
+  "The Trials of Oscar Wilde": [
+   "United Kingdom",
+   "Ireland"
+  ],
+  "The Revolutions of 1848": [
+   "France",
+   "Germany",
+   "Habsburg Empire",
+   "Italy"
+  ],
+  "A Murderous Affair": [
+   "Habsburg Empire"
+  ],
+  "Young Churchill": [
+   "United Kingdom"
+  ],
+  "The American Founding Fathers": [
+   "United States"
+  ],
+  "Greece vs Persia ": [
+   "Ancient Greece",
+   "Persia & Iran"
+  ]
+ },
+ "strands": {
+  "The French Revolution": [
+   "France"
+  ],
+  "Egypt & the Pharaohs": [
+   "Egypt"
+  ],
+  "The Roman Republic": [
+   "Rome"
+  ],
+  "The Roman Empire & Its Fall": [
+   "Rome"
+  ],
+  "Greek Myth & the Age of Heroes": [
+   "Ancient Greece"
+  ],
+  "Greece, Persia & Alexander": [
+   "Ancient Greece"
+  ],
+  "America in the Sixties & After": [
+   "United States"
+  ],
+  "Civil War & the American Frontier": [
+   "United States"
+  ],
+  "The American Revolution & the Young Republic": [
+   "United States",
+   "United Kingdom"
+  ],
+  "Tudors, Stuarts & the British Civil Wars": [
+   "England"
+  ],
+  "Medieval England: Conquest to Bosworth": [
+   "England"
+  ],
+  "Modern Britain & Ireland": [
+   "United Kingdom"
+  ],
+  "Victorian Britain & the Industrial Age": [
+   "United Kingdom"
+  ],
+  "Russia: Revolution to Putin": [
+   "Russia"
+  ],
+  "The Renaissance": [
+   "Italy"
+  ],
+  "Napoleon & His Wars": [
+   "France"
+  ],
+  "The Cold War & the Nuclear Age": [
+   "Worldwide"
+  ]
+ }
+}
