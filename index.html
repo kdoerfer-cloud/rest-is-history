@@ -110,6 +110,12 @@ button.ctl.on{background:var(--accent);color:var(--accent-ink);border-color:var(
 .jband h3{font-size:1.1rem;color:var(--accent)}
 .jband span{font-family:var(--sans);font-size:.76rem;color:var(--muted)}
 .jshelf{margin:1.4rem 0 .4rem}
+.syncbanner{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .9rem;margin:0 0 1rem;padding:.7rem .9rem;
+  border:1px solid var(--accent-2);border-radius:12px;background:var(--bg-soft);font-family:var(--sans);font-size:.85rem}
+.syncbanner[hidden]{display:none}
+.syncbanner b{font-weight:600}
+.syncbanner button{font:inherit;font-weight:600;padding:.4rem .85rem;border-radius:999px;border:0;cursor:pointer;
+  background:var(--accent);color:var(--accent-ink)}
 @media (max-width:700px){
   .jpick .chips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.35rem;scrollbar-width:none}
   .jpick .chips::-webkit-scrollbar{display:none}
@@ -383,6 +389,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
 
 <main>
   <div class="statusline" id="status">Loading episodes…</div>
+  <div id="syncBanner" class="syncbanner" hidden></div>
   <section class="view active" id="v-timeline"></section>
   <section class="view" id="v-journeys"></section>
   <section class="view" id="v-arcs"></section>
@@ -519,6 +526,10 @@ var SORTS={
  "title":function(a,b){return a.t.localeCompare(b.t);}
 };
 function cmpNum(a,b){return (+a.n||0)-(+b.n||0);}
+/* Inside one series the reading order is always the history order: run, then part. */
+function chronOrder(list){
+  return list.slice().sort(function(a,b){
+    return ((a.sq||0)-(b.sq||0))||(a.rk<b.rk?-1:a.rk>b.rk?1:0)||((a.ro||0)-(b.ro||0))||cmpNum(a,b);});}
 function sorted(list){return list.slice().sort(SORTS[state.sort]||SORTS["rel-desc"]);}
 function filtered(){return EPS.filter(matches);}
 
@@ -642,7 +653,7 @@ function seriesGroups(list){
       if(d)return d;}
     return (cacheFirst[a]&&cacheFirst[b])?SORTS[state.sort](cacheFirst[a],cacheFirst[b]):0;});
   return keys.map(function(k){
-    var eps=sorted(g.map[k]),p=progressOf(eps);
+    var eps=chronOrder(g.map[k]),p=progressOf(eps);
     var y0=Math.min.apply(null,eps.map(function(x){return x.y0;}));
     var y1=Math.max.apply(null,eps.map(function(x){return x.y1;}));
     return grpHTML("s:"+k,k,fmtSpan(y0,y1)+" · "+eps.length+" ep"+(eps.length>1?"s":""),pbar(p),eps,null);
@@ -671,7 +682,7 @@ function renderTimeline(list){
     html+='<div class="tlera"><div class="tlerahead"><h3>'+esc(era)+'</h3><span>'+
       esc(meta[era]||"")+' · '+eps.length+' episodes · '+p.done+' listened</span></div>';
     srs.forEach(function(s){
-      var eps2=sorted(s.eps),sp=progressOf(eps2),gid="tl:"+era+"|"+s.name;
+      var eps2=chronOrder(s.eps),sp=progressOf(eps2),gid="tl:"+era+"|"+s.name;
       GROUPS[gid]=eps2.map(function(e){return e.k;});
       var open=!!OPEN[gid];
       html+='<div class="tlitem'+(sp.pct===100?" seen":"")+'" data-grp="'+esc(gid)+'">'+
@@ -901,7 +912,8 @@ function renderMe(){
        '<p class="hint">Series you have started but not finished — unheard parts only.</p>';
     h+=partial.slice(0,12).map(function(x){
       var rest=x.eps.filter(function(e){return !isDone(e.k);})
-                    .sort(function(a,b){return cmpNum(a,b);});
+                    ;
+      rest=chronOrder(rest);
       return grpHTML("cont:"+x.name,x.name,x.p.done+" of "+x.p.total+" done",pbar(x.p),rest,null);
     }).join("");}
   if(queued.length){
@@ -1037,7 +1049,7 @@ document.addEventListener("click",function(ev){
   if(t.id==="bulkOff"){bulkMark(filtered().filter(function(e){return isDone(e.k);}),false);return;}
 
   if(t.closest("#themeBtn")){setTheme(ui.theme==="dark"?"light":"dark");return;}
-  if(t.closest("#lockBtn")){
+  if(t.closest("#lockBtn")||t.closest("#unlockNow")){
     var msg=SYNCED.count?("Listening history from Apple Podcasts, exported "+
         (SYNCED.generated||"").slice(0,10)+".\n\nEnter the passphrase again to re-read it:")
       :"Passphrase for your synced listening history:";
@@ -1076,7 +1088,7 @@ document.addEventListener("click",function(ev){
       var body=g.querySelector(".gbody");
       if(body&&body.hasAttribute("data-lazy")){
         /* outer groups hold nested series; leaf groups hold episodes */
-        if(/^(st|e|theme):/.test(id))body.innerHTML=seriesGroups(epsOf(GROUPS[id]));
+        if(/^(st|e|theme|nation):/.test(id))body.innerHTML=seriesGroups(epsOf(GROUPS[id]));
         else body.innerHTML=listHTML(epsOf(GROUPS[id]));
         body.removeAttribute("data-lazy");}}
     return;}
@@ -1292,7 +1304,19 @@ function unlockSynced(pass){
     .catch(function(){return false;});}
 
 function syncStatus(){
-  var b=$("#lockBtn");
+  var b=$("#lockBtn"),ban=$("#syncBanner");
+  /* A published but still-encrypted history is easy to miss behind a small header button,
+     so say so plainly until it has been unlocked on this browser. */
+  if(SYNCFILE&&SYNCFILE.ct&&!SYNCED.count){
+    ban.hidden=false;
+    ban.innerHTML='<span>🔒 <b>Your Apple Podcasts listening history is locked in this browser.</b> '+
+      'Unlock it once with your passphrase and the episodes you have heard will be ticked off everywhere.</span>'+
+      '<button type="button" id="unlockNow">Unlock history</button>';}
+  else if(SYNCED.count){
+    ban.hidden=false;
+    ban.innerHTML='<span>↻ <b>'+SYNCED.count+' episodes</b> marked from Apple Podcasts · last exported '+
+      esc((SYNCED.generated||"").slice(0,10))+'</span>';}
+  else ban.hidden=true;
   if(!SYNCFILE){b.hidden=true;return;}
   var open=SYNCED.count>0;
   b.hidden=false;
