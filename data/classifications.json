@@ -238,6 +238,14 @@
   "title": "113. Hallowe'en and modern paganism"
  },
  "n114": {
+  "also": [
+   {
+    "end": -1500,
+    "era": "Prehistory & the Ancient Near East",
+    "start": -3000,
+    "why": "Stonehenge"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000540460923",
   "confidence": "low",
   "end": 1600,
@@ -322,6 +330,20 @@
   "title": "119. World Cup of Kings & Queens preview"
  },
  "n12": {
+  "also": [
+   {
+    "end": 1681,
+    "era": "Empires & Enlightenment",
+    "start": 1678,
+    "why": "Popish Plot"
+   },
+   {
+    "end": 1963,
+    "era": "Cold War & Post-War World",
+    "start": 1963,
+    "why": "JFK"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000504240261",
   "confidence": "medium",
   "end": 2021,
@@ -350,6 +372,20 @@
   "title": "120. The Oil Weapon"
  },
  "n121": {
+  "also": [
+   {
+    "end": -1000,
+    "era": "Prehistory & the Ancient Near East",
+    "start": -65000,
+    "why": "first human settlement"
+   },
+   {
+    "end": 1770,
+    "era": "Empires & Enlightenment",
+    "start": 1606,
+    "why": "Europeans before Cook"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000542285995",
   "confidence": "medium",
   "end": 1770,
@@ -462,6 +498,14 @@
   "title": "128. Rasputin"
  },
  "n129": {
+  "also": [
+   {
+    "end": 1901,
+    "era": "The Long Nineteenth Century",
+    "start": 1837,
+    "why": "Victorian transformation and Empire"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000544378521",
   "confidence": "medium",
   "end": 2021,
@@ -742,6 +786,20 @@
   "title": "146. Disease vs. the rise of civilisation"
  },
  "n147": {
+  "also": [
+   {
+    "end": 1600,
+    "era": "Renaissance & Reformation",
+    "start": 1492,
+    "why": "Europeans bring disease to the Americas"
+   },
+   {
+    "end": 1919,
+    "era": "World Wars & the Interwar Years",
+    "start": 1918,
+    "why": "Spanish flu"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000550019048",
   "confidence": "medium",
   "end": 2021,
@@ -812,6 +870,20 @@
   "title": "150. Smuggling"
  },
  "n151": {
+  "also": [
+   {
+    "end": 269,
+    "era": "Ancient Rome",
+    "start": 269,
+    "why": "St Valentine"
+   },
+   {
+    "end": 1929,
+    "era": "World Wars & the Interwar Years",
+    "start": 1929,
+    "why": "St Valentine's Day Massacre"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000550983464",
   "confidence": "medium",
   "end": 1929,
@@ -868,6 +940,26 @@
   "title": "154. The Most Disastrous Party in History"
  },
  "n155": {
+  "also": [
+   {
+    "end": 1000,
+    "era": "The Early Middle Ages",
+    "start": 882,
+    "why": "Kyivan Rus'"
+   },
+   {
+    "end": 1922,
+    "era": "World Wars & the Interwar Years",
+    "start": 1917,
+    "why": "Russian Civil War"
+   },
+   {
+    "end": 2022,
+    "era": "The Modern World",
+    "start": 2014,
+    "why": "the present war"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000551948027",
   "confidence": "medium",
   "end": 2022,
@@ -1456,6 +1548,26 @@
   "title": "192. Robin Hood"
  },
  "n193": {
+  "also": [
+   {
+    "end": 1940,
+    "era": "World Wars & the Interwar Years",
+    "start": 1916,
+    "why": "Asquith and Chamberlain"
+   },
+   {
+    "end": 1990,
+    "era": "Cold War & Post-War World",
+    "start": 1990,
+    "why": "Thatcher"
+   },
+   {
+    "end": 2007,
+    "era": "The Modern World",
+    "start": 2007,
+    "why": "Blair"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000565449648",
   "confidence": "medium",
   "end": 2022,
@@ -1568,6 +1680,20 @@
   "title": "2. Civil War"
  },
  "n20": {
+  "also": [
+   {
+    "end": 1860,
+    "era": "The Long Nineteenth Century",
+    "start": 1839,
+    "why": "Opium Wars"
+   },
+   {
+    "end": 1976,
+    "era": "Cold War & Post-War World",
+    "start": 1949,
+    "why": "Mao"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000507652890",
   "confidence": "medium",
   "end": 2021,
@@ -1820,6 +1946,14 @@
   "title": "215. Stalingrad and the Red Army (Part 2)"
  },
  "n216": {
+  "also": [
+   {
+    "end": 1945,
+    "era": "World Wars & the Interwar Years",
+    "start": 1914,
+    "why": "pigeons in both world wars"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000685333197",
   "confidence": "medium",
   "end": 1945,
@@ -2086,6 +2220,20 @@
   "title": "232. Queen Elizabeth II (Part 2)"
  },
  "n233": {
+  "also": [
+   {
+    "end": 565,
+    "era": "The Early Middle Ages",
+    "start": 565,
+    "why": "St Columba's monster"
+   },
+   {
+    "end": 1934,
+    "era": "World Wars & the Interwar Years",
+    "start": 1933,
+    "why": "the 1930s sightings"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000579134496",
   "confidence": "medium",
   "end": 2022,
@@ -2324,6 +2472,20 @@
   "title": "248. Medieval Treason (Part 1)"
  },
  "n249": {
+  "also": [
+   {
+    "end": 1776,
+    "era": "Empires & Enlightenment",
+    "start": 1649,
+    "why": "Charles I's trial; American independence"
+   },
+   {
+    "end": 1916,
+    "era": "World Wars & the Interwar Years",
+    "start": 1916,
+    "why": "Easter Rising"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000584873664",
   "confidence": "medium",
   "end": 2000,
@@ -2478,6 +2640,20 @@
   "title": "258. Costa Rica: Civil War"
  },
  "n259": {
+  "also": [
+   {
+    "end": 1908,
+    "era": "The Long Nineteenth Century",
+    "start": 1856,
+    "why": "Anglo-Persian War; the oil company that became BP"
+   },
+   {
+    "end": 1989,
+    "era": "Cold War & Post-War World",
+    "start": 1979,
+    "why": "Rushdie fatwa"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000586899054",
   "confidence": "medium",
   "end": 2022,
@@ -2548,6 +2724,20 @@
   "title": "262: Tunisia: Dido of Carthage"
  },
  "n263": {
+  "also": [
+   {
+    "end": 1815,
+    "era": "Revolution & Napoleon",
+    "start": 1812,
+    "why": "War of 1812"
+   },
+   {
+    "end": 1970,
+    "era": "Cold War & Post-War World",
+    "start": 1960,
+    "why": "Beatlemania and Bond"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000587437056",
   "confidence": "medium",
   "end": 2022,
@@ -3542,6 +3732,14 @@
   "title": "326: The Year of Revolutions: 1848"
  },
  "n327": {
+  "also": [
+   {
+    "end": 1000,
+    "era": "The Early Middle Ages",
+    "start": 800,
+    "why": "Charlemagne; 10th-century liturgy"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000611634619",
   "confidence": "medium",
   "end": 1066,
@@ -3570,6 +3768,20 @@
   "title": "328: Coronations: Sex, Holy Oil and Civil War (Part 2)"
  },
  "n329": {
+  "also": [
+   {
+    "end": 1911,
+    "era": "The Long Nineteenth Century",
+    "start": 1821,
+    "why": "19th-century coronations"
+   },
+   {
+    "end": 1953,
+    "era": "Cold War & Post-War World",
+    "start": 1953,
+    "why": "Elizabeth II crowned"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000611649930",
   "confidence": "medium",
   "end": 2023,
@@ -3668,6 +3880,14 @@
   "title": "334: Athens and the Birth of Democracy"
  },
  "n335": {
+  "also": [
+   {
+    "end": 1789,
+    "era": "Empires & Enlightenment",
+    "start": 1717,
+    "why": "Freemasons and the American founding"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000614331480",
   "confidence": "medium",
   "end": 2000,
@@ -3682,6 +3902,20 @@
   "title": "335: The Freemasons: History's Greatest Conspiracy Theory"
  },
  "n336": {
+  "also": [
+   {
+    "end": 1450,
+    "era": "The High & Late Middle Ages",
+    "start": 1169,
+    "why": "Norman conquest of Ireland"
+   },
+   {
+    "end": 1653,
+    "era": "Empires & Enlightenment",
+    "start": 1649,
+    "why": "Cromwell"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000614764286",
   "confidence": "medium",
   "end": 1653,
@@ -3934,6 +4168,20 @@
   "title": "351: Amsterdam: Miracles, Money, and Mud (Part 1)"
  },
  "n352": {
+  "also": [
+   {
+    "end": 1700,
+    "era": "Empires & Enlightenment",
+    "start": 1650,
+    "why": "Dutch Golden Age"
+   },
+   {
+    "end": 1991,
+    "era": "Cold War & Post-War World",
+    "start": 1945,
+    "why": "post-war liberalism"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000621311536",
   "confidence": "medium",
   "end": 2000,
@@ -5068,6 +5316,20 @@
   "title": "424. Carthage vs. Rome: Total War (Part 4)"
  },
  "n425": {
+  "also": [
+   {
+    "end": -500,
+    "era": "Prehistory & the Ancient Near East",
+    "start": -1500,
+    "why": "Olmecs domesticate cacao"
+   },
+   {
+    "end": 1600,
+    "era": "Renaissance & Reformation",
+    "start": 1519,
+    "why": "Cortés and Montezuma"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000647648517",
   "confidence": "medium",
   "end": 2024,
@@ -5376,6 +5638,14 @@
   "title": "444. The First Emperor of China"
  },
  "n445": {
+  "also": [
+   {
+    "end": 1558,
+    "era": "Renaissance & Reformation",
+    "start": 1500,
+    "why": "Charles V"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000653475906",
   "confidence": "medium",
   "end": 1918,
@@ -5656,6 +5926,20 @@
   "title": "462. St George: Dragon-Slayer"
  },
  "n463": {
+  "also": [
+   {
+    "end": 1789,
+    "era": "Empires & Enlightenment",
+    "start": 1690,
+    "why": "party politics, violence and 'treating'"
+   },
+   {
+    "end": 1868,
+    "era": "The Long Nineteenth Century",
+    "start": 1815,
+    "why": "unreformed elections"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000659511940",
   "confidence": "medium",
   "end": 1918,
@@ -6104,6 +6388,20 @@
   "title": "491. History's Greatest Beards: From Egyptian Queens to Medieval Conquerors (Par"
  },
  "n492": {
+  "also": [
+   {
+    "end": 1698,
+    "era": "Empires & Enlightenment",
+    "start": 1698,
+    "why": "Peter the Great's beard tax"
+   },
+   {
+    "end": 1970,
+    "era": "Cold War & Post-War World",
+    "start": 1960,
+    "why": "John Lennon"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/the-war-on-beards-from-peter-the-great-to-john-lennon-part-2/id1537788786?i=1000668810301",
   "confidence": "medium",
   "end": 1970,
@@ -9478,6 +9776,20 @@
   "title": "709. The Terror: The Execution of Marie Antoinette (Part 3)"
  },
  "n71": {
+  "also": [
+   {
+    "end": 1000,
+    "era": "The Early Middle Ages",
+    "start": 793,
+    "why": "Vikings"
+   },
+   {
+    "end": 1807,
+    "era": "Revolution & Napoleon",
+    "start": 1807,
+    "why": "Copenhagen bombarded"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000527933813",
   "confidence": "low",
   "end": 2021,
@@ -9870,6 +10182,14 @@
   "title": "86. The Enlightenment"
  },
  "n87": {
+  "also": [
+   {
+    "end": 1907,
+    "era": "The Long Nineteenth Century",
+    "start": 1830,
+    "why": "the Great Game"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000532330146",
   "confidence": "medium",
   "end": 1919,
@@ -10066,6 +10386,20 @@
   "title": "99. Thermopylae & Salamis Episode 2"
  },
  "t12-days-alfred-the-great-and-pepys-fanatiques": {
+  "also": [
+   {
+    "end": 878,
+    "era": "The Early Middle Ages",
+    "start": 878,
+    "why": "Alfred's battle"
+   },
+   {
+    "end": 1661,
+    "era": "Empires & Enlightenment",
+    "start": 1661,
+    "why": "Venner's 'Fanatiques' rising"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000547058194",
   "confidence": "medium",
   "end": 1661,
@@ -10080,6 +10414,20 @@
   "title": "12 Days: Alfred the Great and Pepys' 'Fanatiques'"
  },
  "t12-days-coronation-of-charlemagne-and-the-collapse-of-the-soviet-union": {
+  "also": [
+   {
+    "end": 800,
+    "era": "The Early Middle Ages",
+    "start": 800,
+    "why": "Charlemagne crowned"
+   },
+   {
+    "end": 1991,
+    "era": "Cold War & Post-War World",
+    "start": 1991,
+    "why": "Gorbachev resigns"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546073346",
   "confidence": "high",
   "end": 1991,
@@ -10094,6 +10442,20 @@
   "title": "12 Days: Coronation of Charlemagne and the collapse of the Soviet Union"
  },
  "t12-days-death-of-edward-the-confessor-and-the-dreyfus-affair": {
+  "also": [
+   {
+    "end": 1066,
+    "era": "The High & Late Middle Ages",
+    "start": 1066,
+    "why": "Edward the Confessor dies"
+   },
+   {
+    "end": 1906,
+    "era": "The Long Nineteenth Century",
+    "start": 1894,
+    "why": "Dreyfus affair"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546958115",
   "confidence": "high",
   "end": 1906,
@@ -10108,6 +10470,20 @@
   "title": "12 Days: Death of Edward the Confessor and the Dreyfus Affair"
  },
  "t12-days-good-king-wenceslas-and-the-first-gilbert-sullivan": {
+  "also": [
+   {
+    "end": 935,
+    "era": "The Early Middle Ages",
+    "start": 907,
+    "why": "Wenceslas"
+   },
+   {
+    "end": 1871,
+    "era": "The Long Nineteenth Century",
+    "start": 1871,
+    "why": "Gilbert & Sullivan's Thespis"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546117247",
   "confidence": "medium",
   "end": 1871,
@@ -10136,6 +10512,20 @@
   "title": "12 Days: Jean-Bédel Bokassa and the memory of pandemics"
  },
  "t12-days-martin-luther-and-j-r-r-tolkien": {
+  "also": [
+   {
+    "end": 1521,
+    "era": "Renaissance & Reformation",
+    "start": 1521,
+    "why": "Luther excommunicated"
+   },
+   {
+    "end": 1892,
+    "era": "The Long Nineteenth Century",
+    "start": 1892,
+    "why": "Tolkien born"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546743452",
   "confidence": "high",
   "end": 1973,
@@ -10150,6 +10540,20 @@
   "title": "12 Days: Martin Luther and J.R.R. Tolkien"
  },
  "t12-days-massacre-of-the-innocents-and-the-tay-bridge-disaster": {
+  "also": [
+   {
+    "end": -4,
+    "era": "Ancient Rome",
+    "start": -4,
+    "why": "Herod's massacre"
+   },
+   {
+    "end": 1879,
+    "era": "The Long Nineteenth Century",
+    "start": 1879,
+    "why": "Tay Bridge disaster"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546290223",
   "confidence": "medium",
   "end": 1879,
@@ -10164,6 +10568,20 @@
   "title": "12 Days: Massacre of the Innocents and the Tay Bridge disaster"
  },
  "t12-days-nero-s-succession-and-the-fall-of-the-byzantine-empire": {
+  "also": [
+   {
+    "end": 69,
+    "era": "Ancient Rome",
+    "start": 68,
+    "why": "Year of the Four Emperors"
+   },
+   {
+    "end": 1071,
+    "era": "The High & Late Middle Ages",
+    "start": 1071,
+    "why": "Manzikert"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546626234",
   "confidence": "medium",
   "end": 1071,
@@ -10178,6 +10596,20 @@
   "title": "12 Days: Nero's succession and the fall of the Byzantine Empire"
  },
  "t12-days-port-wine-and-darwin-sets-sail": {
+  "also": [
+   {
+    "end": 1703,
+    "era": "Empires & Enlightenment",
+    "start": 1678,
+    "why": "English taste for port"
+   },
+   {
+    "end": 1836,
+    "era": "The Long Nineteenth Century",
+    "start": 1831,
+    "why": "Voyage of the Beagle"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546171001",
   "confidence": "medium",
   "end": 1836,
@@ -10192,6 +10624,20 @@
   "title": "12 Days: Port wine and Darwin sets sail"
  },
  "t12-days-reconquest-of-spain-and-the-old-queen-of-hawaii": {
+  "also": [
+   {
+    "end": 1492,
+    "era": "Renaissance & Reformation",
+    "start": 1492,
+    "why": "Fall of Granada"
+   },
+   {
+    "end": 1893,
+    "era": "The Long Nineteenth Century",
+    "start": 1893,
+    "why": "Hawaiian monarchy overthrown"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546679657",
   "confidence": "medium",
   "end": 1893,
@@ -10206,6 +10652,20 @@
   "title": "12 Days: Reconquest of Spain and the Old Queen of Hawaii"
  },
  "t12-days-solomon-northup-and-albert-camus": {
+  "also": [
+   {
+    "end": 1853,
+    "era": "The Long Nineteenth Century",
+    "start": 1841,
+    "why": "Solomon Northup"
+   },
+   {
+    "end": 1960,
+    "era": "Cold War & Post-War World",
+    "start": 1960,
+    "why": "Camus dies"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546842218",
   "confidence": "high",
   "end": 1960,
@@ -10220,6 +10680,20 @@
   "title": "12 Days: Solomon Northup and Albert Camus"
  },
  "t12-days-the-battle-of-wakefield-and-emperor-karl-i": {
+  "also": [
+   {
+    "end": 1460,
+    "era": "Renaissance & Reformation",
+    "start": 1460,
+    "why": "Battle of Wakefield"
+   },
+   {
+    "end": 1922,
+    "era": "World Wars & the Interwar Years",
+    "start": 1916,
+    "why": "Emperor Karl I"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546464099",
   "confidence": "high",
   "end": 1922,
@@ -10234,6 +10708,20 @@
   "title": "12 Days: The Battle of Wakefield and Emperor Karl I"
  },
  "t12-days-the-murder-of-thomas-becket-and-the-wounded-knee-massacre": {
+  "also": [
+   {
+    "end": 1170,
+    "era": "The High & Late Middle Ages",
+    "start": 1170,
+    "why": "Becket murdered"
+   },
+   {
+    "end": 1890,
+    "era": "The Long Nineteenth Century",
+    "start": 1890,
+    "why": "Wounded Knee"
+   }
+  ],
   "apple": "podcasts://podcasts.apple.com/us/podcast/episode/id1537788786?i=1000546381444",
   "confidence": "high",
   "end": 1890,

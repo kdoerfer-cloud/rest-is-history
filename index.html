@@ -176,6 +176,7 @@ a.act{text-decoration:none}
 .tag:hover{border-color:var(--accent-2);color:var(--text)}
 .tag.era{color:var(--accent);border-color:var(--border-2)}
 .tag.plain{cursor:default}
+.tag.bigtag{font-style:italic}
 .tag.parttag,.tag.parttag:hover{display:none;cursor:default;color:var(--part-ink);background:var(--part);
   border-color:var(--part);font-weight:600}
 .ep.part .tag.parttag{display:inline-block}
@@ -538,7 +539,8 @@ function matches(e){
       if(v==="queue"&&prog.queue[e.k])ok=true;
     }
     if(!ok)return false;}
-  if(Object.keys(f.era).length&&!f.era[e.e])return false;
+  if(Object.keys(f.era).length&&!f.era[e.e]&&
+     !(e.al||[]).some(function(a){return f.era[a[0]];}))return false;
   if(Object.keys(f.region).length&&!f.region[e.r])return false;
   var na=Object.keys(f.nation);
   if(na.length){var nh=false;for(var q2=0;q2<na.length;q2++){if((e.c||[]).indexOf(na[q2])>=0)nh=true;}
@@ -568,6 +570,20 @@ function cmpNum(a,b){return (+a.n||0)-(+b.n||0);}
 function chronOrder(list){
   return list.slice().sort(function(a,b){
     return ((a.sq||0)-(b.sq||0))||(a.rk<b.rk?-1:a.rk>b.rk?1:0)||((a.ro||0)-(b.ro||0))||cmpNum(a,b);});}
+/* Big-picture episodes keep their main place and are also shown in the eras they
+   cover (e.al = [[era, start, end], ...], from "also" in classifications.json).
+   A placement is a light copy of the episode with that era and those dates. */
+function withAlso(list){
+  var fe=state.f.era,on=Object.keys(fe).length>0,out=[];
+  list.forEach(function(e){
+    if(!on||fe[e.e])out.push(e);
+    (e.al||[]).forEach(function(a){
+      if(on&&!fe[a[0]])return;
+      var g=Object.create(e);g.e=a[0];g.y0=a[1];g.y1=a[2];g.also=true;out.push(g);});});
+  return out;}
+function alsoNote(e){
+  return (e.al&&e.al.length)?'<span class="tag plain bigtag" title="Also shown in: '+
+    esc(e.al.map(function(a){return a[0];}).join(", "))+'">◇ Big picture</span>':"";}
 function sorted(list){return list.slice().sort(SORTS[state.sort]||SORTS["rel-desc"]);}
 function filtered(){return EPS.filter(matches);}
 
@@ -603,7 +619,7 @@ function epHTML(e){
   var tags="";
   /* always rendered when Podcasts holds a position; CSS shows it only while the card is .part */
   if(sp)tags+='<span class="tag plain parttag" title="Stopped '+esc(fmtDur(sp[0]))+' in, in Apple Podcasts">'+esc(partLabel(e.k))+'</span>';
-  tags+='<span class="tag era" data-f="era" data-v="'+esc(e.e)+'">'+esc(e.e)+'</span>';
+  tags+='<span class="tag era" data-f="era" data-v="'+esc(e.e)+'">'+esc(e.e)+'</span>'+alsoNote(e);
   tags+='<span class="tag plain">'+esc(fmtSpan(e.y0,e.y1))+'</span>';
   e.th.forEach(function(t){tags+='<span class="tag" data-f="theme" data-v="'+esc(t)+'">'+esc(t)+'</span>';});
   (e.c||[]).forEach(function(n){tags+='<span class="tag nat" data-f="nation" data-v="'+esc(n)+'">'+esc(n)+'</span>';});
@@ -726,8 +742,10 @@ function renderTimeline(list){
         y1:Math.max.apply(null,l.map(function(x){return x.y1;}))};});
     srs.sort(function(a,b){return (a.y0-b.y0)||(a.y1-b.y1)||a.name.localeCompare(b.name);});
     if(state.sort==="hist-desc")srs.reverse();
+    var nb=eps.filter(function(x){return x.also;}).length;
     html+='<div class="tlera"><div class="tlerahead"><h3>'+esc(era)+'</h3><span>'+
-      esc(meta[era]||"")+' · '+eps.length+' episodes · '+p.done+' listened</span></div>';
+      esc(meta[era]||"")+' · '+eps.length+' episodes'+(nb?' (incl. '+nb+' big-picture)':'')+
+      ' · '+p.done+' listened</span></div>';
     srs.forEach(function(s){
       var eps2=chronOrder(s.eps),sp=progressOf(eps2),gid="tl:"+era+"|"+s.name;
       GROUPS[gid]=eps2.map(function(e){return e.k;});
@@ -735,7 +753,8 @@ function renderTimeline(list){
       html+='<div class="tlitem'+(sp.pct===100?" seen":"")+pclass(sp)+'" data-grp="'+esc(gid)+'">'+
         '<div class="tlcard" role="button" tabindex="0">'+
         '<span class="tlyear">'+esc(fmtSpan(s.y0,s.y1))+'</span>'+
-        '<span class="tlname">'+hl(s.name)+'<small>'+esc(s.eps[0].st)+' · '+s.eps.length+
+        '<span class="tlname">'+hl(s.name)+'<small>'+
+        (s.eps.every(function(x){return x.also;})?'◇ Big picture · ':'')+esc(s.eps[0].st)+' · '+s.eps.length+
         ' episode'+(s.eps.length>1?"s":"")+'</small></span>'+pbar(sp)+'</div>'+
         '<div class="tlbody"'+(open?"":" hidden")+(open?"":' data-lazy="1"')+'>'+
         (open?listHTML(eps2):"")+'</div></div>';});
@@ -1032,9 +1051,9 @@ function render(){
   updateStatus(list);
   GROUPS={};
   var host=$("#v-"+v);
-  if(v==="timeline")host.innerHTML=renderTimeline(list);
+  if(v==="timeline")host.innerHTML=renderTimeline(withAlso(list));
   if(v==="arcs")host.innerHTML=renderNested(list,"st",DATA.strands.map(function(x){return x.name;}));
-  if(v==="eras")host.innerHTML=renderNested(list,"e",DATA.eras.map(function(x){return x.name;}),
+  if(v==="eras")host.innerHTML=renderNested(withAlso(list),"e",DATA.eras.map(function(x){return x.name;}),
     function(k,eps){var m="";DATA.eras.forEach(function(x){if(x.name===k)m=x.range;});
       return m+" · "+eps.length+" episodes";});
   if(v==="journeys")host.innerHTML=renderJourneys(list);
