@@ -2,7 +2,7 @@ name: Refresh episode data
 
 on:
   schedule:
-    - cron: "17 5 * * *"        # 05:17 UTC nightly
+    - cron: "17 5 * * *"        # 05:17 UTC nightly (GitHub often starts scheduled runs hours late)
   workflow_dispatch:            # ...or run it by hand from the Actions tab
 
 permissions:
@@ -15,6 +15,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -22,13 +23,38 @@ jobs:
         with:
           python-version: "3.12"
 
+      # The feed and the Apple lookup sometimes fail for a moment; try three times before giving up.
       - name: Rebuild data/episodes.json from the RSS feed
-        run: python3 scripts/build_data.py
-
-      - name: Commit if the feed brought anything new
         run: |
-          if git diff --quiet -- data/episodes.json; then
-            echo "No change in the feed today."
+          for attempt in 1 2 3; do
+            if python3 scripts/build_data.py; then exit 0; fi
+            echo "::warning::Build attempt $attempt failed."
+            git checkout -- data/episodes.json
+            sleep $((attempt * 60))
+          done
+          echo "::error::The build failed three times."
+          exit 1
+
+      # A short or empty feed would otherwise wipe episodes off the site.
+      - name: Refuse a build with fewer episodes than before
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, sys
+          new = json.load(open("data/episodes.json"))["count"]
+          raw = subprocess.run(["git", "show", "HEAD:data/episodes.json"],
+                               capture_output=True, text=True).stdout
+          old = json.loads(raw)["count"] if raw.strip() else 0
+          print(f"episodes: {old} committed, {new} built")
+          if new < old:
+              print(f"::error::The build has {new} episodes, fewer than the {old} committed. Not committing.")
+              sys.exit(1)
+          PY
+
+      # Only the build timestamp changes on most nights; commit only when the data itself did.
+      - name: Commit and push if the data changed
+        run: |
+          if python3 scripts/data_unchanged.py; then
+            echo "No change in the data today (only the build timestamp)."
             exit 0
           fi
           COUNT=$(python3 -c "import json;print(json.load(open('data/episodes.json'))['count'])")
@@ -36,4 +62,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/episodes.json
           git commit -m "Refresh episode data — ${COUNT} episodes"
-          git push
+          # The Mac pushes the listening history too; if it got there first, rebase and try again.
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "::warning::Push attempt $attempt failed; rebasing on the latest main."
+            sleep $((attempt * 15))
+            git pull --rebase
+          done
+          echo "::error::Could not push after three attempts."
+          exit 1
