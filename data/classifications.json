@@ -334,12 +334,18 @@
    {
     "end": 1681,
     "era": "Empires & Enlightenment",
+    "nations": [
+     "England"
+    ],
     "start": 1678,
     "why": "Popish Plot"
    },
    {
     "end": 1963,
     "era": "Cold War & Post-War World",
+    "nations": [
+     "United States"
+    ],
     "start": 1963,
     "why": "JFK"
    }
@@ -874,12 +880,18 @@
    {
     "end": 269,
     "era": "Ancient Rome",
+    "nations": [
+     "Rome"
+    ],
     "start": 269,
     "why": "St Valentine"
    },
    {
     "end": 1929,
     "era": "World Wars & the Interwar Years",
+    "nations": [
+     "United States"
+    ],
     "start": 1929,
     "why": "St Valentine's Day Massacre"
    }
@@ -3884,6 +3896,9 @@
    {
     "end": 1789,
     "era": "Empires & Enlightenment",
+    "nations": [
+     "United States"
+    ],
     "start": 1717,
     "why": "Freemasons and the American founding"
    }
@@ -5320,12 +5335,19 @@
    {
     "end": -500,
     "era": "Prehistory & the Ancient Near East",
+    "nations": [
+     "Mexico"
+    ],
     "start": -1500,
     "why": "Olmecs domesticate cacao"
    },
    {
     "end": 1600,
     "era": "Renaissance & Reformation",
+    "nations": [
+     "Mexico",
+     "Spain"
+    ],
     "start": 1519,
     "why": "Cortés and Montezuma"
    }
@@ -6392,12 +6414,18 @@
    {
     "end": 1698,
     "era": "Empires & Enlightenment",
+    "nations": [
+     "Russia"
+    ],
     "start": 1698,
     "why": "Peter the Great's beard tax"
    },
    {
     "end": 1970,
     "era": "Cold War & Post-War World",
+    "nations": [
+     "United Kingdom"
+    ],
     "start": 1960,
     "why": "John Lennon"
    }
@@ -10418,12 +10446,19 @@
    {
     "end": 800,
     "era": "The Early Middle Ages",
+    "nations": [
+     "France",
+     "Germany"
+    ],
     "start": 800,
     "why": "Charlemagne crowned"
    },
    {
     "end": 1991,
     "era": "Cold War & Post-War World",
+    "nations": [
+     "Russia"
+    ],
     "start": 1991,
     "why": "Gorbachev resigns"
    }
@@ -10446,12 +10481,18 @@
    {
     "end": 1066,
     "era": "The High & Late Middle Ages",
+    "nations": [
+     "England"
+    ],
     "start": 1066,
     "why": "Edward the Confessor dies"
    },
    {
     "end": 1906,
     "era": "The Long Nineteenth Century",
+    "nations": [
+     "France"
+    ],
     "start": 1894,
     "why": "Dreyfus affair"
    }
@@ -10474,12 +10515,18 @@
    {
     "end": 935,
     "era": "The Early Middle Ages",
+    "nations": [
+     "Czech Lands"
+    ],
     "start": 907,
     "why": "Wenceslas"
    },
    {
     "end": 1871,
     "era": "The Long Nineteenth Century",
+    "nations": [
+     "United Kingdom"
+    ],
     "start": 1871,
     "why": "Gilbert & Sullivan's Thespis"
    }
@@ -10516,12 +10563,18 @@
    {
     "end": 1521,
     "era": "Renaissance & Reformation",
+    "nations": [
+     "Germany"
+    ],
     "start": 1521,
     "why": "Luther excommunicated"
    },
    {
     "end": 1892,
     "era": "The Long Nineteenth Century",
+    "nations": [
+     "United Kingdom"
+    ],
     "start": 1892,
     "why": "Tolkien born"
    }
@@ -10544,12 +10597,18 @@
    {
     "end": -4,
     "era": "Ancient Rome",
+    "nations": [
+     "Israel & Judea"
+    ],
     "start": -4,
     "why": "Herod's massacre"
    },
    {
     "end": 1879,
     "era": "The Long Nineteenth Century",
+    "nations": [
+     "Scotland"
+    ],
     "start": 1879,
     "why": "Tay Bridge disaster"
    }
@@ -10572,12 +10631,19 @@
    {
     "end": 69,
     "era": "Ancient Rome",
+    "nations": [
+     "Rome"
+    ],
     "start": 68,
     "why": "Year of the Four Emperors"
    },
    {
     "end": 1071,
     "era": "The High & Late Middle Ages",
+    "nations": [
+     "Byzantine Empire",
+     "Ottoman Empire"
+    ],
     "start": 1071,
     "why": "Manzikert"
    }
@@ -10606,6 +10672,9 @@
    {
     "end": 1836,
     "era": "The Long Nineteenth Century",
+    "nations": [
+     "United Kingdom"
+    ],
     "start": 1831,
     "why": "Voyage of the Beagle"
    }
@@ -10628,12 +10697,18 @@
    {
     "end": 1492,
     "era": "Renaissance & Reformation",
+    "nations": [
+     "Spain"
+    ],
     "start": 1492,
     "why": "Fall of Granada"
    },
    {
     "end": 1893,
     "era": "The Long Nineteenth Century",
+    "nations": [
+     "Hawaii"
+    ],
     "start": 1893,
     "why": "Hawaiian monarchy overthrown"
    }
@@ -10656,12 +10731,18 @@
    {
     "end": 1853,
     "era": "The Long Nineteenth Century",
+    "nations": [
+     "United States"
+    ],
     "start": 1841,
     "why": "Solomon Northup"
    },
    {
     "end": 1960,
     "era": "Cold War & Post-War World",
+    "nations": [
+     "France"
+    ],
     "start": 1960,
     "why": "Camus dies"
    }
@@ -10684,12 +10765,18 @@
    {
     "end": 1460,
     "era": "Renaissance & Reformation",
+    "nations": [
+     "England"
+    ],
     "start": 1460,
     "why": "Battle of Wakefield"
    },
    {
     "end": 1922,
     "era": "World Wars & the Interwar Years",
+    "nations": [
+     "Habsburg Empire"
+    ],
     "start": 1916,
     "why": "Emperor Karl I"
    }
@@ -10712,12 +10799,18 @@
    {
     "end": 1170,
     "era": "The High & Late Middle Ages",
+    "nations": [
+     "England"
+    ],
     "start": 1170,
     "why": "Becket murdered"
    },
    {
     "end": 1890,
     "era": "The Long Nineteenth Century",
+    "nations": [
+     "United States"
+    ],
     "start": 1890,
     "why": "Wounded Knee"
    }

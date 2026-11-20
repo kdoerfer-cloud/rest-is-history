@@ -185,8 +185,10 @@ def main():
             "r": c["region"], "c": nations_for(key, c["series"], c["strand"]),
             "y0": c["start"], "y1": c["end"],
             "sub": c.get("subject", ""), "cf": c.get("confidence", "medium"),
-            # extra era placements for big-picture episodes: [[era, start, end], ...]
-            "al": [[x["era"], x["start"], x["end"]] for x in c.get("also", [])],
+            # extra era placements for big-picture episodes: [[era, start, end, nations], ...]
+            # (nations only where a placement is about some of the episode's nations, not all)
+            "al": [[x["era"], x["start"], x["end"]] + ([x["nations"]] if x.get("nations") else [])
+                   for x in c.get("also", [])],
         })
 
     sequence.add_sequence(episodes)      # rk / ro / pt / sq / jk / jx for the Journeys view

@@ -805,10 +805,11 @@ var JCULTURE={"Music, Film & Popular Culture":1,"Food, Drink & Daily Life":1,"Sp
   "Myths, Monsters & Mysteries":1};
 function jband(y){for(var i=0;i<JBANDS.length;i++){if(y<JBANDS[i][0])return i;}return JBANDS.length-1;}
 function fmtHrs(s){var h=s/3600;return (h>=10?Math.round(h):Math.round(h*10)/10)+" h";}
-function jIn(e){
+function jInNations(list){
   if(state.jr==="all")return true;
   var nr=DATA.nregion||{};
-  return (e.c||[]).some(function(n){return state.jn?n===state.jn:nr[n]===state.jr;});}
+  return (list||[]).some(function(n){return state.jn?n===state.jn:nr[n]===state.jr;});}
+function jIn(e){return jInNations(e.c);}
 function jOrder(a,b){return a.jx-b.jx;}
 function jParts(eps){
   var p=eps.map(function(e){return e.pt;}).filter(function(x){return x!=null;});
@@ -886,17 +887,34 @@ function renderJourneys(list){
   spine.forEach(function(e){
     if(!cur||cur.rk!==e.rk){cur={rk:e.rk,s:e.s,eps:[]};arcs.push(cur);}
     cur.eps.push(e);});
+  arcs.forEach(function(a){a.sq=a.eps[0].sq;});
+  /* Big-picture episodes on this journey also sit in the order at the periods they
+     cover (e.al). They are extra stops: not counted in the totals or the next-up. */
+  /* a placement about only some of the episode's nations (al[3]) shows only on their journeys */
+  list.filter(function(e){return !(state.jcore&&JCULTURE[e.st]);}).forEach(function(e){
+    if(state.jhide&&isDone(e.k))return;
+    (e.al||[]).forEach(function(al){
+      if(!jInNations(al[3]||e.c))return;
+      var g={big:true,rk:"big:"+e.k+":"+al[1],s:e.s,eps:[e],sq:al[1],y0:al[1],y1:al[2]};
+      var i=0;while(i<arcs.length&&!(arcs[i].sq>g.sq))i++;
+      arcs.splice(i,0,g);});});
   var band=-1;
   arcs.forEach(function(a){
-    var b=jband(a.eps[0].sq);
+    var b=jband(a.sq);
     if(b!==band){
       band=b;
-      var inBand=arcs.filter(function(x){return jband(x.eps[0].sq)===b;});
+      var inBand=arcs.filter(function(x){return !x.big&&jband(x.sq)===b;});
       var n=inBand.reduce(function(s,x){return s+x.eps.length;},0);
       var bs=inBand.reduce(function(s,x){return s+x.eps.reduce(function(t,e){return t+(+e.dur||0);},0);},0);
       h+='<div class="jband"><h3>'+esc(JBANDS[b][1])+'</h3><span>'+esc(JBANDS[b][2])+' · '+inBand.length+
         ' stories · '+n+' episodes · '+fmtHrs(bs)+'</span></div>';}
     var first=a.eps[0],last=a.eps[a.eps.length-1];
+    if(a.big){
+      var bid="jb:"+state.jr+"|"+state.jn+"|"+a.rk;
+      h+=grpHTML(bid,"◇ "+first.t,fmtSpan(a.y0,a.y1)+" · big picture, also on the "+
+        (first.jk==="x"?"specials":first.jk==="o"?"overview":"main")+(first.jk==="s"?" route":" shelf"),
+        pbar(progressOf(a.eps)),a.eps,null);
+      return;}
     var y0=Math.min.apply(null,a.eps.map(function(x){return x.y0;}));
     var y1=Math.max.apply(null,a.eps.map(function(x){return x.y1;}));
     var ps=jParts(a.eps),p=progressOf(a.eps);
