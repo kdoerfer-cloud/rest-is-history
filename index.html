@@ -1023,7 +1023,8 @@ function renderMe(){
       var rest=x.eps.filter(function(e){return !isDone(e.k);})
                     ;
       rest=chronOrder(rest);
-      return grpHTML("cont:"+x.name,x.name,x.p.done+" of "+x.p.total+" done",pbar(x.p),rest,null);
+      /* count and colour cover the whole series; the body lists only the parts still to hear */
+      return grpHTML("cont:"+x.name,x.name,rest.length+" still to hear",pbar(x.p),chronOrder(x.eps),listHTML(rest));
     }).join("");}
   if(queued.length){
     h+='<h2 class="sec">Your queue</h2>'+listHTML(sorted(queued));}
