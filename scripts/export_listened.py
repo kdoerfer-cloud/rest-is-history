@@ -28,6 +28,11 @@ DB = (Path.home() / "Library/Group Containers/243LU875E5.groups.com.apple.podcas
       / "Documents/MTLibrary.sqlite")
 ITERATIONS = 200_000
 CORE_DATA_EPOCH = 978_307_200          # 2001-01-01 in Unix seconds
+# A play position shorter than this is treated as an accidental start, not a part-heard episode.
+# Chosen from the positions on 2026-11-20 (18 unfinished episodes): three sat at 17-78 s, then
+# nothing until 145 s. A judgment call on a small sample; re-check with --stats.
+PARTIAL_MIN_SECONDS = 120
+
 
 
 def glt(url):
@@ -119,22 +124,48 @@ def norm_title(t):
     return re.sub(r"[^a-z0-9]+", " ", t).strip()
 
 
+def print_stats(fracs):
+    """Shape of the play positions, so the cut-offs are chosen from the data. Numbers only."""
+    def pct(xs, q):
+        xs = sorted(xs)
+        return xs[min(len(xs) - 1, int(q * len(xs)))] if xs else float("nan")
+    for label, want in (("counted as listened", True), ("NOT counted as listened", False)):
+        fr = [f for f, h, _ in fracs if h is want]
+        secs = [s for _, h, s in fracs if h is want]
+        print(f"--stats: {label}, with a play position: n={len(fr)}")
+        if fr:
+            print("   fraction played  p0/p10/p25/p50/p75/p90/p100: " +
+                  " ".join(f"{pct(fr, q):.2f}" for q in (0, .10, .25, .50, .75, .90, .999)))
+            print("   seconds in       p0/p10/p25/p50/p75/p90/p100: " +
+                  " ".join(f"{pct(secs, q):.0f}" for q in (0, .10, .25, .50, .75, .90, .999)))
+            edges = [0, .01, .05, .10, .25, .50, .75, .90, .95, 1.01, 99]
+            print("   histogram of fraction played: " + "  ".join(
+                f"[{a:.2f},{b:.2f})={sum(1 for f in fr if a <= f < b)}" for a, b in zip(edges, edges[1:])))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--push", action="store_true", help="commit and push data/listened.json")
     ap.add_argument("--plain", action="store_true", help="write it unencrypted (the default)")
     ap.add_argument("--encrypt", action="store_true",
                     help="encrypt it with your passphrase (the page then has to be unlocked on each browser)")
+    ap.add_argument("--stats", action="store_true",
+                    help="print how far into each unfinished episode the play position is (no titles)")
     args = ap.parse_args()
     args.plain = not args.encrypt
 
     episodes = json.loads((ROOT / "data" / "episodes.json").read_text())["episodes"]
     by_asset = {glt(e["au"]): e["k"] for e in episodes if glt(e["au"])}
+    feed_dur = {e["k"]: float(e.get("dur") or 0) for e in episodes}
     by_guid = {e["g"]: e["k"] for e in episodes if e.get("g")}
     by_title = {norm_title(e["ft"]): e["k"] for e in episodes}
     by_title.update({norm_title(e["t"]): e["k"] for e in episodes})
 
-    listened, matched, skipped = {}, 0, 0
+    # listened: episode key -> when it was played (ms; 0 when Podcasts holds no date)
+    # partial:  episode key -> [seconds in, episode length in seconds, when (ms or 0)]
+    #           for episodes started but not finished
+    listened, partial, matched, skipped = {}, {}, 0, 0
+    fracs = []                                # --stats: (fraction played, counted as listened)
     for r in read_play_state():
         key = None
         for u in r["urls"]:
@@ -147,19 +178,33 @@ def main():
             skipped += 1                      # Club/bonus episodes, absent from the public feed
             continue
         matched += 1
-        dur, head = r["dur"] or 0, r["head"] or 0
-        if (r["state"] == 2) or (r["plays"] or 0) > 0 or (dur and head >= dur * 0.95):
-            when = r["played"]
-            listened[key] = int((CORE_DATA_EPOCH + when) * 1000) if when else 0
+        # Podcasts often holds no length (it was 0 for every row on 2026-11-20), so fall back
+        # on the length in the feed. Without it the 95% rule below can never fire.
+        dur, head = r["dur"] or feed_dur.get(key, 0), r["head"] or 0
+        when = r["played"]
+        when = int((CORE_DATA_EPOCH + when) * 1000) if when else 0
+        heard = (r["state"] == 2) or (r["plays"] or 0) > 0 or (dur and head >= dur * 0.95)
+        if dur and head > 0:
+            fracs.append((head / dur, bool(heard), head))
+        if heard:
+            listened[key] = when
+            partial.pop(key, None)
+        elif (head >= PARTIAL_MIN_SECONDS and key not in listened
+              and head > partial.get(key, [0])[0]):       # several rows can match one episode
+            partial[key] = [int(head), int(dur), when]
+
+    if args.stats:
+        print_stats(fracs)
 
     payload = {"generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-               "source": "apple-podcasts", "listened": listened}
+               "source": "apple-podcasts", "listened": listened, "partial": partial}
     out = ROOT / "data" / "listened.json"
 
     if args.plain:
         try:                                   # nothing new to publish: leave the file alone
             old = json.loads(out.read_text())
-            if not old.get("ct") and old.get("listened") == listened:
+            if (not old.get("ct") and old.get("listened") == listened
+                    and old.get("partial", {}) == {k: list(v) for k, v in partial.items()}):
                 print(f"{len(listened)} listened, unchanged since {old.get('generated', '?')[:10]}.")
                 return
         except Exception:
@@ -186,7 +231,7 @@ def main():
             "generated": payload["generated"], "count": len(listened),
         }, separators=(",", ":")))
 
-    print(f"{len(listened)} listened, from {matched} episodes matched "
+    print(f"{len(listened)} listened, {len(partial)} part-heard, from {matched} episodes matched "
           f"({skipped} Club/bonus rows skipped) -> {out.relative_to(ROOT)}"
           f"{' (unencrypted)' if args.plain else ''}")
 

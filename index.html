@@ -171,6 +171,12 @@ a.act{text-decoration:none}
 .tag:hover{border-color:var(--accent-2);color:var(--text)}
 .tag.era{color:var(--accent);border-color:var(--border-2)}
 .tag.plain{cursor:default}
+.tag.parttag{display:none;cursor:default;color:var(--accent);border-color:var(--accent);font-weight:600}
+.ep.part .tag.parttag{display:inline-block}
+.ep.part{box-shadow:inset 3px 0 0 var(--accent)}
+.partbar{display:none;height:3px;border-radius:2px;background:var(--border);margin-top:.5rem;overflow:hidden}
+.partbar i{display:block;height:100%;background:var(--accent)}
+.ep.part .partbar{display:block}
 .tag.plain:hover{border-color:var(--border);color:var(--muted)}
 .epdesc{margin-top:.5rem;font-size:.9rem;color:var(--muted);display:none;line-height:1.55;
   white-space:pre-wrap;border-top:1px dashed var(--border);padding-top:.55rem}
@@ -356,6 +362,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
         <div class="flabel">Listening status</div>
         <div class="chips" id="f-status">
           <button class="chip" data-v="unheard" aria-pressed="false">Not yet listened</button>
+          <button class="chip" data-v="partial" aria-pressed="false">◐ Part-heard</button>
           <button class="chip" data-v="listened" aria-pressed="false">Listened</button>
           <button class="chip" data-v="star" aria-pressed="false">★ Favourites</button>
           <button class="chip" data-v="queue" aria-pressed="false">⌁ In my queue</button>
@@ -443,14 +450,28 @@ prog.off=prog.off||{};        /* episodes un-marked by hand, overriding the sync
 /* SYNCED is the listening history exported from Apple Podcasts on the Mac and
    published with the site. It is the baseline; anything marked or un-marked here
    in the browser wins over it. */
-var SYNCED={listened:{},generated:"",count:0};
+var SYNCED={listened:{},partial:{},generated:"",count:0};
+/* A synced episode can carry 0 as its date (Podcasts holds none), so test for the key, not the value. */
+function inSynced(k){return Object.prototype.hasOwnProperty.call(SYNCED.listened,k);}
 function isDone(k){
   if(prog.off[k])return false;
-  return !!(prog.listened[k]||SYNCED.listened[k]);}
+  return !!prog.listened[k]||inSynced(k);}
+/* Part-heard: started in Apple Podcasts but not finished. SYNCED.partial[k]=[seconds in, length, when].
+   Returns null once the episode is marked listened. */
+function partOf(k){
+  var p=SYNCED.partial[k];
+  if(!p||isDone(k))return null;
+  var e=BYKEY[k],dur=+p[1]||(e?+e.dur:0)||0,head=+p[0]||0;
+  if(!head)return null;
+  return {head:head,dur:dur,left:dur>head?dur-head:0,pct:dur?Math.min(100,Math.round(head*100/dur)):0,when:+p[2]||0};}
+function partLabel(k){
+  var p=SYNCED.partial[k];if(!p)return "";
+  var e=BYKEY[k],dur=+p[1]||(e?+e.dur:0)||0,head=+p[0]||0;
+  return "◐ "+(dur>head?fmtDur(dur-head)+" left":fmtDur(head)+" in");}
 function doneAt(k){return prog.listened[k]||SYNCED.listened[k]||0;}
 function setDone(k,on){
   if(on){prog.listened[k]=prog.listened[k]||Date.now();delete prog.off[k];delete prog.queue[k];}
-  else{delete prog.listened[k];if(SYNCED.listened[k])prog.off[k]=Date.now();}}
+  else{delete prog.listened[k];if(inSynced(k))prog.off[k]=Date.now();}}
 var ui=readLS(LS_UI,null)||{};
 function saveProg(){writeLS(LS_PROG,prog);}
 function saveUI(){writeLS(LS_UI,{view:state.view,sort:state.sort,nsort:state.nsort,jr:state.jr,jn:state.jn,jcore:state.jcore,jhide:state.jhide,theme:ui.theme});}
@@ -496,6 +517,7 @@ function matches(e){
       var v=st[j];
       if(v==="listened"&&isDone(e.k))ok=true;
       if(v==="unheard"&&!isDone(e.k))ok=true;
+      if(v==="partial"&&partOf(e.k))ok=true;
       if(v==="star"&&prog.star[e.k])ok=true;
       if(v==="queue"&&prog.queue[e.k])ok=true;
     }
@@ -561,14 +583,17 @@ function hl(text){
 
 function epHTML(e){
   var done=isDone(e.k),star=!!prog.star[e.k],q=!!prog.queue[e.k];
+  var sp=SYNCED.partial[e.k],part=partOf(e.k);
   var tags="";
+  /* always rendered when Podcasts holds a position; CSS shows it only while the card is .part */
+  if(sp)tags+='<span class="tag plain parttag" title="Stopped '+esc(fmtDur(sp[0]))+' in, in Apple Podcasts">'+esc(partLabel(e.k))+'</span>';
   tags+='<span class="tag era" data-f="era" data-v="'+esc(e.e)+'">'+esc(e.e)+'</span>';
   tags+='<span class="tag plain">'+esc(fmtSpan(e.y0,e.y1))+'</span>';
   e.th.forEach(function(t){tags+='<span class="tag" data-f="theme" data-v="'+esc(t)+'">'+esc(t)+'</span>';});
   (e.c||[]).forEach(function(n){tags+='<span class="tag nat" data-f="nation" data-v="'+esc(n)+'">'+esc(n)+'</span>';});
   tags+='<span class="tag plain">'+fmtDur(e.dur)+'</span>';
   tags+='<span class="tag plain">'+fmtDate(e.d)+'</span>';
-  return '<article class="ep'+(done?" done":"")+'" data-k="'+esc(e.k)+'">'+
+  return '<article class="ep'+(done?" done":"")+(part?" part":"")+'" data-k="'+esc(e.k)+'">'+
    '<div class="ephead">'+
      '<span class="epnum">'+(e.n?"#"+esc(e.n):esc(e.ty==="bonus"?"bonus":"—"))+'</span>'+
      '<h3 class="eptitle" data-act="open">'+hl(e.t)+'</h3>'+
@@ -578,6 +603,7 @@ function epHTML(e){
        '<button class="act'+(star?" on":"")+'" data-act="star" title="Favourite" aria-pressed="'+star+'" aria-label="Favourite">'+ICON.star(star)+'</button>'+
        '<button class="act'+(q?" on":"")+'" data-act="queue" title="Add to my queue" aria-pressed="'+q+'" aria-label="Add to my queue">'+ICON.mark(q)+'</button>'+
      '</div></div>'+
+   (sp?'<div class="partbar"><i style="width:'+(part?part.pct:Math.min(100,Math.round(sp[0]*100/((+sp[1]||+e.dur||1)))))+'%"></i></div>':'')+
    '<div class="epmeta">'+tags+'</div>'+
    '<div class="epdesc">'+esc(e.desc||"No description.")+'</div>'+
    '<div class="eplinks">'+
@@ -891,6 +917,8 @@ function renderMe(){
   var secs=done.reduce(function(a,e){return a+(+e.dur||0);},0);
   var starred=all.filter(function(e){return prog.star[e.k];});
   var queued=all.filter(function(e){return prog.queue[e.k];});
+  var parts=all.filter(function(e){return partOf(e.k);})
+    .sort(function(a,b){return partOf(b.k).when-partOf(a.k).when;});
   var g=groupBy(all,function(e){return e.s;});
   var partial=g.keys.map(function(k){
     var eps=g.map[k],p=progressOf(eps);return {name:k,eps:eps,p:p};})
@@ -901,12 +929,17 @@ function renderMe(){
     '<div class="statcard"><b>'+done.length+'</b><span>episodes listened</span></div>'+
     '<div class="statcard"><b>'+Math.round(secs/3600)+'</b><span>hours logged</span></div>'+
     '<div class="statcard"><b>'+Math.round(done.length*100/(all.length||1))+'%</b><span>of the catalogue</span></div>'+
+    '<div class="statcard"><b>'+parts.length+'</b><span>episodes part-heard</span></div>'+
     '<div class="statcard"><b>'+partial.length+'</b><span>series in progress</span></div>'+
     '<div class="statcard"><b>'+queued.length+'</b><span>in your queue</span></div>'+
     '<div class="statcard"><b>'+starred.length+'</b><span>favourites</span></div></div>';
   if(!done.length&&!queued.length&&!starred.length){
     h+='<div class="empty">Nothing tracked yet. Use the circle to mark an episode listened, the star to '+
        'favourite it, and the bookmark to add it to your queue — it all stays in this browser.</div>';}
+  if(parts.length){
+    h+='<h2 class="sec">Episodes you stopped partway</h2>'+
+       '<p class="hint">Started in Apple Podcasts but not finished, most recent first. '+
+       'Tick one off if you have in fact heard it.</p>'+listHTML(parts);}
   if(partial.length){
     h+='<h2 class="sec">Pick up where you left off</h2>'+
        '<p class="hint">Series you have started but not finished — unheard parts only.</p>';
@@ -953,6 +986,7 @@ function updateEpisodeCards(k){
   var sel='.ep[data-k="'+(window.CSS&&CSS.escape?CSS.escape(k):k)+'"]';
   $$(sel).forEach(function(el){
     el.classList.toggle("done",done);
+    el.classList.toggle("part",!!partOf(k));
     var set=function(act,on,html){
       var b=el.querySelector('[data-act="'+act+'"]');
       if(!b)return;
@@ -1288,6 +1322,7 @@ function deriveKey(pass,salt,iter){
 
 function applySynced(obj,stamp){
   SYNCED.listened=obj.listened||{};
+  SYNCED.partial=obj.partial||{};
   SYNCED.generated=obj.generated||stamp||"";
   SYNCED.count=Object.keys(SYNCED.listened).length;}
 
