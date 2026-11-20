@@ -18,8 +18,10 @@ A single-page, searchable database of every episode of *The Rest Is History*, or
   year range (negative years are BC). Filters stack, and combine with full-text search across
   titles, subjects, series, arcs and descriptions.
 - **Listening tracking** — mark episodes listened, favourite them, or queue them. *My listening*
-  shows hours logged, progress per era, and a "pick up where you left off" list of part-finished
-  series. Everything is kept in your browser's local storage.
+  shows hours logged, progress per era, a list of episodes you stopped partway (with the time
+  left), and a "pick up where you left off" list of part-finished series. Part-heard episodes
+  carry a mark everywhere, and the filters include *Part-heard*. Your own marks are kept in your
+  browser's local storage.
 - **Bulk marking** — every group header has a `✓ all` toggle (whole series, story arc, era or
   theme at once), and whenever a filter or search is narrowing the list, the status line offers
   *Mark these N listened*.
@@ -37,8 +39,8 @@ A single-page, searchable database of every episode of *The Rest Is History*, or
 | `data/classifications.json` | **Hand-curated.** The historical dating and grouping for each episode. |
 | `scripts/build_data.py` | Merges the RSS feed with the classifications into `data/episodes.json`. |
 | `scripts/fetch_feed.py` | Small helper for inspecting the raw feed. |
-| `data/listened.json` | Generated, encrypted. Your Apple Podcasts history, published with the site. |
-| `scripts/export_listened.py` | Reads the Mac's Podcasts database, encrypts it, writes `data/listened.json`. |
+| `data/listened.json` | Generated. Your Apple Podcasts history (heard and part-heard), published with the site. |
+| `scripts/export_listened.py` | Reads the Mac's Podcasts database and writes `data/listened.json`. |
 | `scripts/sync-listened.command` | Double-click version of the above, with a push. |
 | `scripts/data_unchanged.py` | Lets the nightly job skip a commit when nothing really changed. |
 | `.github/workflows/update-episodes.yml` | Rebuilds and commits the data nightly. |
@@ -67,19 +69,25 @@ or double-click `scripts/sync-listened.command`. To have it run by itself once a
 install the launch agent described at the top of
 `scripts/com.rest-is-history.listened.plist`.
 
-**This repository is public, so the file is encrypted** — AES-GCM under a key stretched
-from a passphrase with PBKDF2-SHA256 (200,000 iterations). The passphrase is never
-written to the repository. The site asks for it once per browser, decrypts in the page,
-and remembers it locally. Anyone who finds the file sees ciphertext.
+The file holds two lists: episodes heard (with when, where Podcasts records it) and episodes
+started but not finished (how far in, and the length). Positions under two minutes are left
+out as accidental starts. `--stats` prints how the positions are spread, as numbers only.
 
-Set the passphrase once, in the macOS keychain:
+**The file is published unencrypted, so anyone can read it** — this repository is public.
+The page loads it on every browser and device with nothing to unlock.
+
+To keep it private instead, run the export with `--encrypt`. The file is then AES-GCM under a
+key stretched from a passphrase with PBKDF2-SHA256 (200,000 iterations); the passphrase is
+never written to the repository, and the site asks for it once per browser, decrypts in the
+page and remembers it locally. Set the passphrase once, in the macOS keychain:
 
 ```bash
 security add-generic-password -a "$USER" -s rih-listened -w
 ```
 
 The script also accepts `RIH_PASSPHRASE` in the environment, and prompts if it finds
-neither. It needs `cryptography` (`python3 -m pip install cryptography`).
+neither. Encryption needs `cryptography` (`python3 -m pip install cryptography`). The nightly
+launch agent runs without `--encrypt`, so add it to `scripts/sync-listened.command` as well.
 
 Anything you mark or un-mark in the browser overrides the synced list for that episode,
 and survives the next sync.
