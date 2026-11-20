@@ -344,6 +344,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
     <button class="tab" role="tab" data-view="nations" aria-selected="false">Nations<span class="tcount" id="c-nations"></span></button>
     <button class="tab" role="tab" data-view="themes" aria-selected="false">Themes<span class="tcount" id="c-themes"></span></button>
     <button class="tab" role="tab" data-view="series" aria-selected="false">Series<span class="tcount" id="c-series"></span></button>
+    <button class="tab" role="tab" data-view="podcast" aria-selected="false">As released</button>
     <button class="tab" role="tab" data-view="all" aria-selected="false">All episodes</button>
     <button class="tab" role="tab" data-view="me" aria-selected="false">My listening</button>
   </div>
@@ -421,6 +422,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
   <section class="view" id="v-nations"></section>
   <section class="view" id="v-themes"></section>
   <section class="view" id="v-series"></section>
+  <section class="view" id="v-podcast"></section>
   <section class="view" id="v-all"></section>
   <section class="view" id="v-me"></section>
 </main>
@@ -945,6 +947,40 @@ function renderSeries(list){
     "in the order the history happened":"ordered by "+$("#sort").selectedOptions[0].textContent.toLowerCase())+
     '.</p>'+seriesGroups(list);}
 
+/* The podcast's own series: each run of back-to-back parts as released (e.rk, worked out
+   in scripts/sequence.py), grouped by year of release, parts in the podcast's order. */
+function renderPodcast(list){
+  if(!list.length)return '<div class="empty">No episodes match.</div>';
+  var oldest=(state.sort==="rel-asc"||state.sort==="num-asc");
+  var g=groupBy(list,function(e){return e.rk||e.k;});
+  var runs=g.keys.map(function(k){
+    var eps=g.map[k].slice().sort(function(a,b){return ((a.ro||0)-(b.ro||0))||cmpNum(a,b);});
+    var ds=eps.map(function(e){return e.d||"";}).sort();
+    return {k:k,eps:eps,d0:ds[0],d1:ds[ds.length-1]};});
+  runs.sort(function(a,b){var c=a.d0<b.d0?-1:a.d0>b.d0?1:0;return oldest?c:-c;});
+  var h='<p class="hint">The series as the podcast released them, '+(oldest?"oldest":"newest")+
+    ' first (change it with the sort menu). Parts read in the podcast’s own order.</p>';
+  var year=null,singles=[];
+  /* stand-alone episodes of a year go in one closed group after its series, so the
+     page does not build hundreds of cards up front */
+  function flush(){
+    if(!singles.length)return;
+    h+=grpHTML("pr1:"+year,"Single episodes",year+" · "+singles.length+" episode"+(singles.length>1?"s":"")+
+      ", in release order",pbar(progressOf(singles)),singles,null);
+    singles=[];}
+  runs.forEach(function(r){
+    var y=(r.d0||"").slice(0,4)||"Undated";
+    if(y!==year){flush();
+      var n=runs.filter(function(x){return (x.d0||"").slice(0,4)===y;}).reduce(function(a,x){return a+x.eps.length;},0);
+      h+='<h2 class="sec">'+esc(y)+' <span class="gsub" style="display:inline">· '+n+' episodes</span></h2>';year=y;}
+    if(r.eps.length===1){singles.push(r.eps[0]);return;}
+    var nums=r.eps.map(function(e){return +e.n;}).filter(Boolean);
+    var sub=(r.d0===r.d1?fmtDate(r.d0):fmtDate(r.d0)+" – "+fmtDate(r.d1))+
+      (nums.length?" · #"+Math.min.apply(null,nums)+"–"+Math.max.apply(null,nums):"")+" · "+r.eps.length+" parts";
+    h+=grpHTML("pr:"+r.k,r.eps[0].s,sub,pbar(progressOf(r.eps)),r.eps,null);});
+  flush();
+  return h;}
+
 function renderAll(list){
   if(!list.length)return '<div class="empty">No episodes match.</div>';
   var s=sorted(list),slice=s.slice(0,shown);
@@ -1060,6 +1096,7 @@ function render(){
   if(v==="nations")host.innerHTML=renderNations(list);
   if(v==="themes")host.innerHTML=renderThemes(list);
   if(v==="series")host.innerHTML=renderSeries(list);
+  if(v==="podcast")host.innerHTML=renderPodcast(list);
   if(v==="all")host.innerHTML=renderAll(list);
   if(v==="me")host.innerHTML=renderMe();
   /* Views left in the document add up: emptying the inactive ones keeps the
