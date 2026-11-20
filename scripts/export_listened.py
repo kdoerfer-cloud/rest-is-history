@@ -122,8 +122,11 @@ def norm_title(t):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--push", action="store_true", help="commit and push data/listened.json")
-    ap.add_argument("--plain", action="store_true", help="write it unencrypted")
+    ap.add_argument("--plain", action="store_true", help="write it unencrypted (the default)")
+    ap.add_argument("--encrypt", action="store_true",
+                    help="encrypt it with your passphrase (the page then has to be unlocked on each browser)")
     args = ap.parse_args()
+    args.plain = not args.encrypt
 
     episodes = json.loads((ROOT / "data" / "episodes.json").read_text())["episodes"]
     by_asset = {glt(e["au"]): e["k"] for e in episodes if glt(e["au"])}
@@ -154,6 +157,13 @@ def main():
     out = ROOT / "data" / "listened.json"
 
     if args.plain:
+        try:                                   # nothing new to publish: leave the file alone
+            old = json.loads(out.read_text())
+            if not old.get("ct") and old.get("listened") == listened:
+                print(f"{len(listened)} listened, unchanged since {old.get('generated', '?')[:10]}.")
+                return
+        except Exception:
+            pass
         out.write_text(json.dumps(payload, separators=(",", ":")))
     else:
         try:
