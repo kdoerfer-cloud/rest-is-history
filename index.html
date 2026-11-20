@@ -1352,7 +1352,8 @@ function syncStatus(){
     ban.innerHTML='<span>↻ <b>'+SYNCED.count+' episodes</b> marked from Apple Podcasts · last exported '+
       esc((SYNCED.generated||"").slice(0,10))+'</span>';}
   else ban.hidden=true;
-  if(!SYNCFILE){b.hidden=true;return;}
+  /* The header button only unlocks an encrypted file; a plain file needs nothing, and the banner shows the count. */
+  if(!SYNCFILE||!SYNCFILE.ct){b.hidden=true;return;}
   var open=SYNCED.count>0;
   b.hidden=false;
   b.textContent=open?("↻ "+SYNCED.count+" synced"):"🔒 Unlock history";
