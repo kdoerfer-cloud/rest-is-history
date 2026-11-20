@@ -10,7 +10,7 @@
   --bg:#faf8f5; --bg-soft:#f3ece4; --card:#fff; --card-2:#fbf8f4;
   --accent:#8b2500; --accent-2:#c4541a; --accent-ink:#fff;
   --text:#2c2420; --muted:#7a706a; --border:#e4ddd6; --border-2:#d6ccc2;
-  --good:#2f6f4f; --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.04);
+  --good:#2f6f4f; --good-soft:#eaf3ed; --good-ink:#fff; --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.04);
   --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;
   --sans:'Helvetica Neue',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
   --maxw:1180px;
@@ -19,7 +19,7 @@ html[data-theme="dark"]{
   --bg:#151210; --bg-soft:#1f1a17; --card:#1c1815; --card-2:#221c18;
   --accent:#e0724a; --accent-2:#f0946f; --accent-ink:#1a1310;
   --text:#ece4dc; --muted:#a2958b; --border:#332b26; --border-2:#463b34;
-  --good:#6cc79a; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.3);
+  --good:#6cc79a; --good-soft:#18261f; --good-ink:#0f1a14; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.3);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 [hidden]{display:none!important}   /* class rules below would otherwise out-rank it */
@@ -150,8 +150,11 @@ main{max-width:var(--maxw);margin:0 auto;padding:.4rem 1.25rem 4rem}
 .ep{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.75rem .9rem;
   box-shadow:var(--shadow);transition:border-color .15s,opacity .15s;position:relative}
 .ep:hover{border-color:var(--border-2)}
-.ep.done{opacity:.62}
-.ep.done .eptitle{text-decoration:line-through;text-decoration-color:var(--border-2)}
+.ep.done{background:var(--good-soft);border-color:var(--good);box-shadow:inset 4px 0 0 var(--good)}
+.ep.done .eptitle{color:var(--muted)}
+.ep.done .epnum{background:var(--good);color:var(--good-ink);font-weight:700}
+.ep.done .epnum:before{content:"✓ "}
+.act[data-act="listened"].on{background:var(--good);color:var(--good-ink);border-color:var(--good)}
 .ephead{display:flex;gap:.7rem;align-items:flex-start}
 .epnum{font-family:var(--sans);font-size:.7rem;color:var(--muted);background:var(--bg-soft);
   border-radius:6px;padding:.2rem .42rem;flex-shrink:0;margin-top:.15rem;min-width:2.6rem;text-align:center}
@@ -210,7 +213,15 @@ audio{width:100%;margin-top:.55rem;display:none}
 /* progress bar */
 .pbar{height:4px;border-radius:3px;background:var(--border);overflow:hidden;flex-shrink:0;width:64px}
 .pbar i{display:block;height:100%;background:var(--good);border-radius:3px;transition:width .3s}
-.pnum{font-family:var(--sans);font-size:.68rem;color:var(--muted);min-width:2.6rem;text-align:right}
+.pnum{font-family:var(--sans);font-size:.68rem;color:var(--muted);min-width:2.6rem;text-align:right;white-space:nowrap}
+/* heard state of a group or timeline item: p-all = every episode heard, p-some = some */
+.grp.p-all,.tlitem.p-all .tlcard{border-color:var(--good);box-shadow:inset 4px 0 0 var(--good),var(--shadow)}
+.grp.p-all>.grphead,.tlitem.p-all .tlcard{background:var(--good-soft)}
+.grp.p-some,.tlitem.p-some .tlcard{box-shadow:inset 4px 0 0 var(--accent-2),var(--shadow)}
+.p-all>.grphead .pnum,.tlitem.p-all .pnum{color:var(--good-ink);background:var(--good);border-radius:999px;
+  padding:.12rem .55rem;font-weight:700}
+.p-some>.grphead .pnum,.tlitem.p-some .pnum{color:var(--accent);font-weight:600}
+.tlitem.p-some:before{background:var(--accent-2)}
 
 /* ---------- timeline ---------- */
 .tl{position:relative;padding-left:1.1rem;margin-top:.5rem}
@@ -636,7 +647,11 @@ function progressOfKeys(keys){
   var n=0;keys.forEach(function(k){if(isDone(k))n++;});
   return {done:n,total:keys.length,pct:keys.length?Math.round(n*100/keys.length):0};}
 
-function pnumText(p){return p.total>1?(p.done+"/"+p.total):(p.done?"heard":"1 ep");}
+function pnumText(p){
+  if(p.total&&p.done===p.total)return p.total>1?"✓ All heard":"✓ Heard";
+  if(p.done)return p.done+" of "+p.total+" heard";
+  return p.total>1?p.total+" eps":"1 ep";}
+function pclass(p){return (p.total&&p.done===p.total)?" p-all":(p.done?" p-some":"");}
 
 function pbar(p){
   return (p.total>1?'<span class="pbar" title="'+p.done+' of '+p.total+' listened"><i style="width:'+
@@ -653,7 +668,7 @@ function grpHTML(id,title,sub,count,eps,body){
   GROUPS[id]=eps.map(function(e){return e.k;});
   var open=!!OPEN[id], lazy=(body==null);
   var inner=lazy?(open?listHTML(eps):""):body;
-  return '<section class="grp'+(open?" open":"")+'" data-grp="'+esc(id)+'">'+
+  return '<section class="grp'+(open?" open":"")+pclass(progressOf(eps))+'" data-grp="'+esc(id)+'">'+
     '<button class="grphead"><span class="arrow">▶</span>'+
     '<span class="gtitle">'+esc(title)+(sub?'<span class="gsub">'+esc(sub)+'</span>':'')+'</span>'+
     count+'<span class="gmark" role="button" tabindex="0" title="Mark every episode here listened / not listened">✓ all</span>'+
@@ -711,7 +726,7 @@ function renderTimeline(list){
       var eps2=chronOrder(s.eps),sp=progressOf(eps2),gid="tl:"+era+"|"+s.name;
       GROUPS[gid]=eps2.map(function(e){return e.k;});
       var open=!!OPEN[gid];
-      html+='<div class="tlitem'+(sp.pct===100?" seen":"")+'" data-grp="'+esc(gid)+'">'+
+      html+='<div class="tlitem'+(sp.pct===100?" seen":"")+pclass(sp)+'" data-grp="'+esc(gid)+'">'+
         '<div class="tlcard" role="button" tabindex="0">'+
         '<span class="tlyear">'+esc(fmtSpan(s.y0,s.y1))+'</span>'+
         '<span class="tlname">'+hl(s.name)+'<small>'+esc(s.eps[0].st)+' · '+s.eps.length+
@@ -1002,6 +1017,8 @@ function refreshProgress(){
     var bar=el.querySelector(".pbar i"),num=el.querySelector(".pnum");
     if(bar)bar.style.width=p.pct+"%";
     if(num)num.textContent=pnumText(p);
+    el.classList.toggle("p-all",p.total>0&&p.done===p.total);
+    el.classList.toggle("p-some",p.done>0&&p.done<p.total);
     if(el.classList.contains("tlitem"))el.classList.toggle("seen",p.pct===100&&p.total>0);});}
 
 function render(){
