@@ -76,12 +76,44 @@ PROMO = ["*The Rest Is History LIVE", "_______", "Twitter:", "Producer:",
          "Assistant Producer", "Join The Rest Is History Club", "Hosted on Acast",
          "Sign up to the newsletter"]
 
+# Paragraphs that are adverts, tour or club plugs, credits or links, wherever they sit.
+# Checked on 2026-11-20 against all 742 descriptions: each match below was read before the
+# pattern was kept; "Twitter" is deliberately absent (several episodes are about Twitter polls).
+PROMO_PARA = re.compile("|".join([
+    r"live tour", r"buy your tickets", r"back on tour", r"going on tour", r"see them live",
+    r"ad ?choices", r"podcastchoices", r"advertise with us",
+    r"exec(utive)? producer", r"\bproduced by\b", r"\bproducer:", r"goalhanger", r"left peg media",
+    r"nordvpn", r"uber\.com", r"adobe", r"hivehome", r"mous\.co", r"£\s?\d+ off", r"\bsponsored by\b",
+    r"risk[- ]free", r"discount", r"output and savings", r"most loved stories", r"promo code", r"free trial",
+    r"restishistorypod\.com", r"therestishistory\.com", r"newsletter", r"ad-free listening", r"discord",
+    r"robomagiclive", r"remove download",
+]), re.I)
+CLUB = re.compile(r"rest is history club", re.I)
+CLUB_PLUG = re.compile(r"\bjoin\b|become a member|sign up|members? (of|get|can|today)|right now|unlock|early", re.I)
+INLINE_CUT = re.compile(r"buy your copy|pre-?order|available now from bookshops", re.I)
+URL_ONLY = re.compile(r"^\W*(https?://|www\.)\S+\W*$", re.I)
+
 def trim_promo(desc):
     cut = len(desc)
     for m in PROMO:
         p = desc.find(m)
         if 0 < p < cut: cut = p
-    return desc[:cut].strip()
+    desc = desc[:cut].strip()
+    keep = []
+    for para in re.split(r"\n\s*\n|\n", desc):
+        para = para.strip()
+        if not para or URL_ONLY.match(para) or PROMO_PARA.search(para):
+            continue
+        if CLUB.search(para) and CLUB_PLUG.search(para):
+            continue
+        m = INLINE_CUT.search(para)
+        if m:                                   # keep the content before a book plug
+            para = para[:m.start()].strip()
+            if len(para) < 40:
+                continue
+        keep.append(para)
+    out = "\n\n".join(keep).strip()
+    return out or desc.split("\n")[0].strip()  # never leave an episode with no summary
 
 def slug(t):
     return re.sub(r"\s+", "-", re.sub(r"[^a-z0-9]+", " ", t.lower()).strip())
