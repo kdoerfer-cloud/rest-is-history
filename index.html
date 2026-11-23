@@ -185,9 +185,17 @@ a.act{text-decoration:none}
 .partbar i{display:block;height:100%;background:var(--part)}
 .ep.part .partbar{display:block}
 .tag.plain:hover{border-color:var(--border);color:var(--muted)}
-.epdesc{margin-top:.5rem;font-size:.9rem;color:var(--muted);display:none;line-height:1.55;
-  white-space:pre-wrap;border-top:1px dashed var(--border);padding-top:.55rem}
+/* a three-line preview of the summary always shows; opening the card swaps in all of it */
+.epsum{margin-top:.45rem;font-size:.9rem;color:var(--text);line-height:1.55;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+.ep.open .epsum{display:none}
+.epdesc{margin-top:.5rem;font-size:.9rem;color:var(--text);line-height:1.55;white-space:pre-line;display:none;
+  border-top:1px dashed var(--border);padding-top:.55rem}
 .ep.open .epdesc{display:block}
+.moredesc{font-family:var(--sans);font-size:.75rem;font-weight:600;color:var(--accent);background:none;
+  border:0;padding:.15rem 0;cursor:pointer}
+.moredesc:hover{text-decoration:underline}
+.ep.open .moredesc{display:none}
 .eplinks{margin-top:.55rem;display:none;gap:.5rem;flex-wrap:wrap;font-family:var(--sans);font-size:.78rem}
 .ep.open .eplinks{display:flex}
 .eplinks a,.eplinks button{border:1px solid var(--border-2);border-radius:7px;padding:.3rem .6rem;
@@ -638,8 +646,10 @@ function epHTML(e){
        '<button class="act'+(q?" on":"")+'" data-act="queue" title="Add to my queue" aria-pressed="'+q+'" aria-label="Add to my queue">'+ICON.mark(q)+'</button>'+
      '</div></div>'+
    (sp?'<div class="partbar"><i style="width:'+(part?part.pct:Math.min(100,Math.round(sp[0]*100/((+sp[1]||+e.dur||1)))))+'%"></i></div>':'')+
-   '<div class="epmeta">'+tags+'</div>'+
+   '<div class="epsum">'+esc((e.desc||"No description.").replace(/\s*\n+\s*/g," "))+'</div>'+
    '<div class="epdesc">'+esc(e.desc||"No description.")+'</div>'+
+   (e.desc&&e.desc.length>160?'<button class="moredesc" data-act="open">Read more ▾</button>':'')+
+   '<div class="epmeta">'+tags+'</div>'+
    '<div class="eplinks">'+
      (e.ap?'<a href="'+esc(appleWeb(e.ap))+'" target="_blank" rel="noopener">Apple Podcasts on the web ↗</a>':'')+
      (e.au?'<button data-act="play">▶ Play here</button>':'')+
