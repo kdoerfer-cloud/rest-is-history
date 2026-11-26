@@ -200,6 +200,8 @@ a.act{text-decoration:none}
 .moredesc:hover{text-decoration:underline}
 .dlbar{display:flex;flex-wrap:wrap;gap:.5rem;margin:.2rem 0 .9rem}
 .dlerr{color:var(--accent)}
+.dlkey{display:flex;flex-wrap:wrap;gap:.5rem;margin:-.4rem 0 .9rem}
+.dlkey input{flex:1 1 16rem;min-width:0;font:inherit;padding:.45rem .6rem;border:1px solid var(--border-2);border-radius:8px;background:var(--card);color:inherit}
 .ep.open .moredesc{display:none}
 .eplinks{margin-top:.55rem;display:none;gap:.5rem;flex-wrap:wrap;font-family:var(--sans);font-size:.78rem}
 .ep.open .eplinks{display:flex}
@@ -1079,6 +1081,8 @@ function renderMe(){
        (dls.length?'<button class="ctl" id="dlShow">Show as a filtered list</button>':'')+
        (dls.length&&!SHARE.key&&!SHARE.exists?'<button class="ctl" id="dlLink">Copy link for another device</button>':'')+
        (dls.length&&(SHARE.key||!SHARE.exists)?'<button class="ctl" id="dlClear">Clear the list</button>':'')+'</div>'+
+       (SHARE.key?'':'<div class="dlkey" id="dlKeyForm" hidden><input type="password" id="dlKeyIn" autocomplete="off" '+
+         'placeholder="Paste your GitHub key here" aria-label="GitHub key"><button class="ctl" id="dlKeySave">Save key</button></div>')+
        (dls.length?listHTML(chronOrder(dls)):'');}
   if(queued.length){
     h+='<h2 class="sec">Your queue</h2>'+listHTML(sorted(queued));}
@@ -1257,7 +1261,8 @@ document.addEventListener("click",function(ev){
     if(confirm("Take all "+Object.keys(prog.dl).length+" episodes off your download list"+(SHARE.key?" on every device":"")+"?")){
       dlChanged(Object.keys(prog.dl),false);prog.dl={};saveProg();render();toast("Download list cleared");}
     return;}
-  if(t.id==="dlConnect"){shareConnect();return;}
+  if(t.id==="dlConnect"){var f=$("#dlKeyForm");if(f){f.hidden=false;$("#dlKeyIn").focus();}return;}
+  if(t.id==="dlKeySave"){shareConnect($("#dlKeyIn").value);return;}
   if(t.id==="dlForget"){shareForget();return;}
 
   var gm=t.closest(".gmark");
@@ -1330,6 +1335,7 @@ document.addEventListener("keydown",function(ev){
   var tag=(ev.target.tagName||"").toLowerCase();
   var typing=tag==="input"||tag==="textarea"||tag==="select";
   if(ev.key==="/"&&!typing){ev.preventDefault();$("#q").focus();$("#q").select();return;}
+  if(ev.key==="Enter"&&ev.target.id==="dlKeyIn"){shareConnect(ev.target.value);return;}
   if(ev.key==="Escape"){openModal(false);if(tag==="input")ev.target.blur();return;}
   if(ev.key.toLowerCase()==="d"&&!typing&&!ev.metaKey&&!ev.ctrlKey){setTheme(ui.theme==="dark"?"light":"dark");}
 });
@@ -1633,9 +1639,8 @@ function shareStatusHTML(){
     :'This list is kept in this browser only. ';
   if(SHARE.err)return '<span class="dlerr">'+esc(SHARE.err)+'</span> ';
   return esc(SHARE.msg||"Shared across your devices.")+' ';}
-function shareConnect(){
-  var k=window.prompt("Paste your GitHub key for the rest-is-history repository. It stays in this browser only.");
-  if(!k)return;k=k.trim();
+function shareConnect(k){
+  k=(k||"").trim();if(!k){toast("Paste the key into the box first");return;}
   fetch("https://api.github.com/repos/"+SHARE_REPO,{headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+k},cache:"no-store"})
   .then(function(r){if(!r.ok)throw new Error("GitHub refused the key ("+r.status+")");return r.json();})
   .then(function(j){
