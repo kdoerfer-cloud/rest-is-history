@@ -19,7 +19,7 @@ Passphrase, in order of preference:
 
 Needs `cryptography` (one-off:  python3 -m pip install cryptography).
 """
-import argparse, re, base64, json, os, re, shutil, sqlite3, subprocess, sys, tempfile, getpass
+import time, argparse, re, base64, json, os, re, shutil, sqlite3, subprocess, sys, tempfile, getpass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -206,6 +206,8 @@ def main():
             if (not old.get("ct") and old.get("listened") == listened
                     and old.get("partial", {}) == {k: list(v) for k, v in partial.items()}):
                 print(f"{len(listened)} listened, unchanged since {old.get('generated', '?')[:10]}.")
+                if args.push:
+                    push_pending()             # an earlier night's commit may still be waiting
                 return
         except Exception:
             pass
@@ -240,12 +242,31 @@ def main():
         done = subprocess.run(["git", "-C", str(ROOT), "diff", "--cached", "--quiet"])
         if done.returncode == 0:
             print("No change since the last export.")
+        else:
+            subprocess.run(["git", "-C", str(ROOT), "commit", "-q", "-m",
+                            f"Update listening history — {len(listened)} episodes"], check=True)
+        push_pending()
+
+
+def push_pending():
+    """Send any local commits GitHub does not have yet, retrying a failed push.
+    On 2026-11-23 a push failed once and, because later nights found nothing new and
+    stopped before pushing, the commit sat on this Mac for three days."""
+    git = ["git", "-C", str(ROOT)]
+    for attempt in (1, 2, 3):
+        subprocess.run(git + ["fetch", "-q"])
+        ahead = subprocess.run(git + ["rev-list", "--count", "@{u}..HEAD"],
+                               capture_output=True, text=True).stdout.strip()
+        if ahead in ("", "0"):
+            print("Nothing waiting to push." if attempt == 1 else "Pushed.")
             return
-        subprocess.run(["git", "-C", str(ROOT), "commit", "-q", "-m",
-                        f"Update listening history — {len(listened)} episodes"], check=True)
-        subprocess.run(["git", "-C", str(ROOT), "pull", "--rebase", "-q"], check=True)
-        subprocess.run(["git", "-C", str(ROOT), "push", "-q"], check=True)
-        print("Pushed.")
+        print(f"{ahead} commit(s) to push (attempt {attempt}).")
+        if (subprocess.run(git + ["pull", "--rebase", "-q"]).returncode == 0
+                and subprocess.run(git + ["push", "-q"]).returncode == 0):
+            print("Pushed.")
+            return
+        time.sleep(20 * attempt)
+    sys.exit("Could not push to GitHub after three attempts; the commit is kept and the next run will try again.")
 
 
 if __name__ == "__main__":
