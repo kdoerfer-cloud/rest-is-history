@@ -22,6 +22,12 @@ A single-page, searchable database of every episode of *The Rest Is History*, or
   left), and a "pick up where you left off" list of part-finished series. Part-heard episodes
   carry a mark everywhere, and the filters include *Part-heard*. Your own marks are kept in your
   browser's local storage.
+- **Download list** — the ⇣ button flags an episode to download; the *To download* filter and
+  a list under *My listening* show them. The list can be shared across devices: it is saved to
+  `data/downloads.json` in this repository through the GitHub API, using a GitHub key that each
+  browser holds in its own storage (*My listening → Share the list across devices*). The key
+  needs only *Contents: read and write* on this repository. Without a key a browser can read the
+  shared list but not change it.
 - **Bulk marking** — every group header has a `✓ all` toggle (whole series, story arc, era or
   theme at once), and whenever a filter or search is narrowing the list, the status line offers
   *Mark these N listened*.
@@ -34,11 +40,12 @@ A single-page, searchable database of every episode of *The Rest Is History*, or
 
 | Path | What it is |
 | --- | --- |
-| `index.html` | The whole site — no build step, no dependencies, no external requests. |
+| `index.html` | The whole site — no build step, no dependencies. Its only outside request is to the GitHub API, for the shared download list. |
 | `data/episodes.json` | Generated. Every episode plus its classification. The page fetches this at load. |
 | `data/classifications.json` | **Hand-curated.** The historical dating and grouping for each episode. |
 | `scripts/build_data.py` | Merges the RSS feed with the classifications into `data/episodes.json`. |
 | `scripts/fetch_feed.py` | Small helper for inspecting the raw feed. |
+| `data/downloads.json` | Written by the page. The shared download list. |
 | `data/listened.json` | Generated. Your Apple Podcasts history (heard and part-heard), published with the site. |
 | `scripts/export_listened.py` | Reads the Mac's Podcasts database and writes `data/listened.json`. |
 | `scripts/sync-listened.command` | Double-click version of the above, with a push. |

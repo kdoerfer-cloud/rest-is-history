@@ -199,6 +199,7 @@ a.act{text-decoration:none}
   border:0;padding:.15rem 0;cursor:pointer}
 .moredesc:hover{text-decoration:underline}
 .dlbar{display:flex;flex-wrap:wrap;gap:.5rem;margin:.2rem 0 .9rem}
+.dlerr{color:var(--accent)}
 .ep.open .moredesc{display:none}
 .eplinks{margin-top:.55rem;display:none;gap:.5rem;flex-wrap:wrap;font-family:var(--sans);font-size:.78rem}
 .ep.open .eplinks{display:flex}
@@ -1066,15 +1067,19 @@ function renderMe(){
       /* count and colour cover the whole series; the body lists only the parts still to hear */
       return grpHTML("cont:"+x.name,x.name,rest.length+" still to hear",pbar(x.p),chronOrder(x.eps),listHTML(rest));
     }).join("");}
-  if(dls.length){
+  {
     var dsecs=dls.reduce(function(a,e){return a+(+e.dur||0);},0);
     h+='<h2 class="sec">To download</h2>'+
-       '<p class="hint">'+dls.length+' episode'+(dls.length>1?'s':'')+' · '+fmtHrs(dsecs)+'. Marks stay in this browser, so to work from '+
-       'your phone copy the link and open it there: it adds these to the phone’s list. Tap the podcast icon on each to open it in Apple Podcasts, '+
-       'download it, then tap ⇣ to take it off the list.</p>'+
-       '<div class="dlbar"><button class="ctl" id="dlLink">Copy link for your phone</button>'+
-       '<button class="ctl" id="dlShow">Show as a filtered list</button>'+
-       '<button class="ctl" id="dlClear">Clear the list</button></div>'+listHTML(chronOrder(dls));}
+       '<p class="hint">'+(dls.length?dls.length+' episode'+(dls.length>1?'s':'')+' · '+fmtHrs(dsecs)+'. ':'Nothing on the list yet: tap ⇣ on an episode to add it. ')+
+       'Tap the podcast icon on each to open it in Apple Podcasts, download it, then tap ⇣ to take it off the list.</p>'+
+       '<p class="hint" id="dlShare">'+shareStatusHTML()+'</p>'+
+       '<div class="dlbar">'+
+       (SHARE.key?'<button class="ctl" id="dlForget">Remove the key from this browser</button>'
+                 :'<button class="ctl" id="dlConnect">'+(SHARE.exists?'Add your key':'Share the list across devices')+'</button>')+
+       (dls.length?'<button class="ctl" id="dlShow">Show as a filtered list</button>':'')+
+       (dls.length&&!SHARE.key&&!SHARE.exists?'<button class="ctl" id="dlLink">Copy link for another device</button>':'')+
+       (dls.length&&(SHARE.key||!SHARE.exists)?'<button class="ctl" id="dlClear">Clear the list</button>':'')+'</div>'+
+       (dls.length?listHTML(chronOrder(dls)):'');}
   if(queued.length){
     h+='<h2 class="sec">Your queue</h2>'+listHTML(sorted(queued));}
   if(starred.length){
@@ -1248,9 +1253,12 @@ document.addEventListener("click",function(ev){
   if(t.id==="dlShow"){state.view="all";state.f.status={dl:1};syncChips();shown=PAGE;saveUI();render();
     window.scrollTo({top:0,behavior:"instant"});return;}
   if(t.id==="dlClear"){
-    if(confirm("Take all "+Object.keys(prog.dl).length+" episodes off your download list?")){
-      prog.dl={};saveProg();render();toast("Download list cleared");}
+    if(!dlAllowed())return;
+    if(confirm("Take all "+Object.keys(prog.dl).length+" episodes off your download list"+(SHARE.key?" on every device":"")+"?")){
+      dlChanged(Object.keys(prog.dl),false);prog.dl={};saveProg();render();toast("Download list cleared");}
     return;}
+  if(t.id==="dlConnect"){shareConnect();return;}
+  if(t.id==="dlForget"){shareForget();return;}
 
   var gm=t.closest(".gmark");
   if(gm){
@@ -1302,6 +1310,8 @@ document.addEventListener("click",function(ev){
     var au=ep.querySelector("audio");if(au&&ep.classList.contains("playing"))au.play().catch(function(){});
     else if(au)au.pause();return;}
   if(a==="listened"||a==="star"||a==="queue"||a==="dl"){
+    if(a==="dl"&&!dlAllowed())return;
+    if(a==="dl")dlChanged([k],!prog.dl[k]);
     if(a==="listened"){setDone(k,!isDone(k));}
     else if(prog[a][k]){delete prog[a][k];}else{prog[a][k]=Date.now();}
     saveProg();
@@ -1527,13 +1537,126 @@ function loadSynced(){
 function applyDlLink(){
   var m=/[#&]dl=([^&]*)/.exec(location.hash);
   if(!m)return false;
+  if(SHARE.exists&&!SHARE.key){try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
+    dlAllowed();return false;}
   var add=decodeURIComponent(m[1]).split(".").filter(function(k){return BYKEY[k];}),fresh=0;
   add.forEach(function(k){if(!prog.dl[k]){prog.dl[k]=Date.now();fresh++;}});
   saveProg();
   state.view="all";state.f.status={dl:1};syncChips();shown=PAGE;
   try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
   setTimeout(function(){toast(add.length+" episodes on your download list"+(fresh<add.length?" ("+fresh+" new)":""));},300);
+  if(fresh)dlChanged(add,true);
   return true;}
+
+/* ------------------------------------------------------------------ shared download list
+   The list can live in the repository as data/downloads.json, so every browser sees the same one.
+   Anyone can read it (the repository is public). Changing it needs a GitHub key that this browser
+   keeps in localStorage; the key never goes into the repository. Changes are gathered for a moment
+   and written as one commit through the GitHub contents API. */
+var SHARE_REPO="kdoerfer-cloud/rest-is-history", SHARE_PATH="data/downloads.json", LS_KEY="rih.ghkey.v1";
+var SHARE={key:readLS(LS_KEY,"")||"",exists:false,loaded:false,sha:null,pending:{},busy:false,timer:null,
+  msg:"",err:""};
+function shareURL(){return "https://api.github.com/repos/"+SHARE_REPO+"/contents/"+SHARE_PATH;}
+function shareHeaders(){var h={"Accept":"application/vnd.github+json"};
+  if(SHARE.key)h.Authorization="Bearer "+SHARE.key;return h;}
+function b64(s){return btoa(unescape(encodeURIComponent(s)));}
+function unb64(s){return decodeURIComponent(escape(atob(String(s).replace(/\s/g,""))));}
+/* Fetch the shared file. Resolves {sha, dl} or null when it does not exist yet. */
+function shareGet(){
+  return fetch(shareURL()+"?ref=main&t="+Date.now(),{headers:shareHeaders(),cache:"no-store"}).then(function(r){
+    if(r.status===404)return null;
+    if(!r.ok)throw new Error("GitHub said "+r.status);
+    return r.json().then(function(j){var d={};try{d=JSON.parse(unb64(j.content)).dl||{};}catch(e){}
+      return {sha:j.sha,dl:d};});});}
+/* Take the shared list as this browser's list, keeping any change not yet written. */
+function shareAdopt(f){
+  SHARE.loaded=true;SHARE.exists=!!f;
+  if(!f)return;
+  SHARE.sha=f.sha;
+  var dl={};Object.keys(f.dl).forEach(function(k){if(BYKEY[k])dl[k]=f.dl[k];});
+  Object.keys(SHARE.pending).forEach(function(k){
+    if(SHARE.pending[k])dl[k]=dl[k]||Date.now();else delete dl[k];});
+  prog.dl=dl;saveProg();}
+function shareLoad(){
+  return shareGet().then(function(f){
+    var before=JSON.stringify(Object.keys(prog.dl).sort());
+    shareAdopt(f);SHARE.err="";
+    if(JSON.stringify(Object.keys(prog.dl).sort())!==before)render();else if(state.view==="me")render();
+  }).catch(function(e){SHARE.loaded=true;SHARE.err="Could not read the shared list ("+e.message+").";
+    if(state.view==="me")render();});}
+/* Called whenever episodes go on or off the list. Returns false when the change is refused. */
+function dlAllowed(){
+  if(SHARE.key||!SHARE.exists)return true;
+  toast("The download list is shared. Add your key under My listening to change it here.");
+  return false;}
+function dlChanged(keys,on){
+  if(!SHARE.key)return true;
+  keys.forEach(function(k){SHARE.pending[k]=on;});
+  SHARE.msg="Saving…";shareStatus();
+  clearTimeout(SHARE.timer);SHARE.timer=setTimeout(shareFlush,1500);
+  return true;}
+function shareFlush(tries){
+  tries=tries||0;
+  if(SHARE.busy){clearTimeout(SHARE.timer);SHARE.timer=setTimeout(shareFlush,800);return;}
+  var ops=SHARE.pending,ks=Object.keys(ops);if(!ks.length)return;
+  SHARE.pending={};SHARE.busy=true;
+  var real=ks.filter(function(k){return k!=="__init";});
+  var add=real.filter(function(k){return ops[k];}).length,del=real.length-add;
+  shareGet().then(function(f){
+    var dl=f?f.dl:{};
+    ks.forEach(function(k){if(ops[k])dl[k]=dl[k]||Date.now();else delete dl[k];});
+    var sorted={};Object.keys(dl).sort().forEach(function(k){sorted[k]=dl[k];});
+    var n=Object.keys(sorted).length;
+    var body={message:(real.length?"Download list: "+(add?"+"+add:"")+(add&&del?" ":"")+(del?"−"+del:""):"Start the shared download list")+" ("+n+" episodes)",
+      content:b64(JSON.stringify({updated:new Date().toISOString(),dl:sorted},null,1)+"\n"),branch:"main"};
+    if(f)body.sha=f.sha;
+    return fetch(shareURL(),{method:"PUT",headers:shareHeaders(),body:JSON.stringify(body)}).then(function(r){
+      if(r.status===409||r.status===422){var e=new Error("conflict");e.retry=true;throw e;}
+      if(r.status===401||r.status===403)throw new Error("the key was refused ("+r.status+")");
+      if(!r.ok)throw new Error("GitHub said "+r.status);
+      return r.json();}).then(function(j){
+        SHARE.busy=false;SHARE.exists=true;SHARE.sha=j.content&&j.content.sha;SHARE.err="";
+        var t=new Date();SHARE.msg="Saved to the shared list at "+t.getHours()+":"+("0"+t.getMinutes()).slice(-2);
+        shareAdopt({sha:SHARE.sha,dl:sorted});shareStatus();
+        if(Object.keys(SHARE.pending).length){clearTimeout(SHARE.timer);SHARE.timer=setTimeout(shareFlush,300);}});
+  }).catch(function(e){
+    SHARE.busy=false;
+    /* put the unsaved changes back, unless newer ones replaced them */
+    ks.forEach(function(k){if(!(k in SHARE.pending))SHARE.pending[k]=ops[k];});
+    if((e.retry||e instanceof TypeError)&&tries<3){setTimeout(function(){shareFlush(tries+1);},1000*(tries+1));return;}
+    SHARE.msg="";SHARE.err="Not saved: "+e.message+". Your marks are kept in this browser and will be sent with the next change.";
+    shareStatus();toast("Download list not saved — see My listening");});}
+function shareStatus(){var s=$("#dlShare");if(s)s.innerHTML=shareStatusHTML();}
+function shareStatusHTML(){
+  if(!SHARE.key)return SHARE.exists
+    ?'This browser reads the shared list but cannot change it. Add your key to change it here. '
+    :'This list is kept in this browser only. ';
+  if(SHARE.err)return '<span class="dlerr">'+esc(SHARE.err)+'</span> ';
+  return esc(SHARE.msg||"Shared across your devices.")+' ';}
+function shareConnect(){
+  var k=window.prompt("Paste your GitHub key for the rest-is-history repository. It stays in this browser only.");
+  if(!k)return;k=k.trim();
+  fetch("https://api.github.com/repos/"+SHARE_REPO,{headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+k},cache:"no-store"})
+  .then(function(r){if(!r.ok)throw new Error("GitHub refused the key ("+r.status+")");return r.json();})
+  .then(function(j){
+    if(!j.permissions||!j.permissions.push)throw new Error("the key cannot change files in the repository");
+    SHARE.key=k;writeLS(LS_KEY,k);
+    /* bring this browser's marks into the shared list */
+    var mine=Object.keys(prog.dl);
+    return shareGet().then(function(f){
+      var have=f?f.dl:{};
+      var extra=mine.filter(function(x){return !have[x];});
+      shareAdopt(f);
+      extra.forEach(function(x){prog.dl[x]=Date.now();});saveProg();
+      if(extra.length||!f){extra.forEach(function(x){SHARE.pending[x]=true;});
+        if(!f&&!extra.length)SHARE.pending.__init=false;
+        shareFlush();}
+      render();
+      toast("Connected. The download list is now shared"+(extra.length?" ("+extra.length+" added from this browser)":""));});})
+  .catch(function(e){toast("Not connected: "+e.message);});}
+function shareForget(){
+  if(!confirm("Remove the GitHub key from this browser? The shared list stays as it is."))return;
+  SHARE.key="";try{localStorage.removeItem(LS_KEY);}catch(e){}render();toast("Key removed from this browser");}
 
 /* ------------------------------------------------------------------ boot */
 var NATION_ALL=false,NATION_TOP=24;
@@ -1584,6 +1707,10 @@ load.then(function(d){
   window.addEventListener("hashchange",function(){if(applyDlLink())render();});
   render();
   loadSynced();
+  shareLoad();
+  /* pick up changes made on another device when coming back to the page */
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState==="visible"&&!SHARE.busy&&!Object.keys(SHARE.pending).length)shareLoad();});
 }).catch(function(err){
   $("#status").innerHTML='<span style="color:var(--accent)">Could not load episode data ('+
     esc(err.message)+'). If you are opening this file directly from disk, run a local web server '+
