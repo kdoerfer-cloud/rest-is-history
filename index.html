@@ -119,6 +119,9 @@ button.ctl.on{background:var(--accent);color:var(--accent-ink);border-color:var(
 .syncbanner button{font:inherit;font-weight:600;padding:.4rem .85rem;border-radius:999px;border:0;cursor:pointer;
   background:var(--accent);color:var(--accent-ink)}
 @media (max-width:700px){
+  /* on a phone the episode buttons sit on their own row under the title */
+  .ephead{flex-wrap:wrap}
+  .epacts{order:3;width:100%;justify-content:flex-end;margin-top:.1rem}
   .jpick .chips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.35rem;scrollbar-width:none}
   .jpick .chips::-webkit-scrollbar{display:none}
   .jchip{white-space:nowrap;flex:0 0 auto}
@@ -195,6 +198,7 @@ a.act{text-decoration:none}
 .moredesc{font-family:var(--sans);font-size:.75rem;font-weight:600;color:var(--accent);background:none;
   border:0;padding:.15rem 0;cursor:pointer}
 .moredesc:hover{text-decoration:underline}
+.dlbar{display:flex;flex-wrap:wrap;gap:.5rem;margin:.2rem 0 .9rem}
 .ep.open .moredesc{display:none}
 .eplinks{margin-top:.55rem;display:none;gap:.5rem;flex-wrap:wrap;font-family:var(--sans);font-size:.78rem}
 .ep.open .eplinks{display:flex}
@@ -392,6 +396,7 @@ mark{background:rgba(196,84,26,.22);color:inherit;border-radius:2px;padding:0 .1
           <button class="chip" data-v="listened" aria-pressed="false">Listened</button>
           <button class="chip" data-v="star" aria-pressed="false">★ Favourites</button>
           <button class="chip" data-v="queue" aria-pressed="false">⌁ In my queue</button>
+          <button class="chip" data-v="dl" aria-pressed="false">⇣ To download</button>
         </div>
       </div>
       <div class="fgroup"><div class="flabel">Era</div><div class="chips" id="f-era"></div></div>
@@ -473,6 +478,7 @@ function writeLS(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 var prog=readLS(LS_PROG,null)||{listened:{},star:{},queue:{}};
 prog.listened=prog.listened||{};prog.star=prog.star||{};prog.queue=prog.queue||{};
 prog.off=prog.off||{};        /* episodes un-marked by hand, overriding the synced list */
+prog.dl=prog.dl||{};          /* episodes flagged to download */
 
 /* SYNCED is the listening history exported from Apple Podcasts on the Mac and
    published with the site. It is the baseline; anything marked or un-marked here
@@ -547,6 +553,7 @@ function matches(e){
       if(v==="partial"&&partOf(e.k))ok=true;
       if(v==="star"&&prog.star[e.k])ok=true;
       if(v==="queue"&&prog.queue[e.k])ok=true;
+      if(v==="dl"&&prog.dl[e.k])ok=true;
     }
     if(!ok)return false;}
   if(Object.keys(f.era).length&&!f.era[e.e]&&
@@ -609,6 +616,8 @@ var ICON={
   check:function(on){return svg('<circle cx="12" cy="12" r="9" fill="none"/>'+(on?'<path d="M8 12.4l2.6 2.6L16 9.6" stroke="currentColor" fill="none"/>':''),false);},
   star:function(on){return svg('<path d="M12 3.6l2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.9l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85z"/>',on);},
   mark:function(on){return svg('<path d="M6.5 3.8h11v16.4L12 15.9l-5.5 4.3z"/>',on);},
+  down:function(on){return svg((on?'<circle cx="12" cy="12" r="9.2" fill="currentColor" stroke="none" opacity=".18"/>':'')+
+    '<path d="M12 4.5v10.2M7.6 10.6l4.4 4.4 4.4-4.4M5.5 19.2h13" fill="none"/>',false);},
   podcast:function(){return svg('<circle cx="12" cy="9.3" r="2.6" fill="currentColor" stroke="none"/>'+
     '<path d="M9.9 21c-.5-2.4-.9-4-.9-5.2a3 3 0 016 0c0 1.2-.4 2.8-.9 5.2a1.2 1.2 0 01-1.2.9h-1.8a1.2 1.2 0 01-1.2-.9z" fill="currentColor" stroke="none"/>'+
     '<path d="M6.1 13.4a7 7 0 1111.8 0" fill="none"/>',false);}
@@ -624,7 +633,7 @@ function hl(text){
   return out;}
 
 function epHTML(e){
-  var done=isDone(e.k),star=!!prog.star[e.k],q=!!prog.queue[e.k];
+  var done=isDone(e.k),star=!!prog.star[e.k],q=!!prog.queue[e.k],dl=!!prog.dl[e.k];
   var sp=SYNCED.partial[e.k],part=partOf(e.k);
   var tags="";
   /* always rendered when Podcasts holds a position; CSS shows it only while the card is .part */
@@ -644,6 +653,7 @@ function epHTML(e){
        '<button class="act'+(done?" on":"")+'" data-act="listened" title="'+(done?"Listened — click to undo":"Mark as listened")+'" aria-pressed="'+done+'" aria-label="Mark as listened">'+ICON.check(done)+'</button>'+
        '<button class="act'+(star?" on":"")+'" data-act="star" title="Favourite" aria-pressed="'+star+'" aria-label="Favourite">'+ICON.star(star)+'</button>'+
        '<button class="act'+(q?" on":"")+'" data-act="queue" title="Add to my queue" aria-pressed="'+q+'" aria-label="Add to my queue">'+ICON.mark(q)+'</button>'+
+       '<button class="act'+(dl?" on":"")+'" data-act="dl" title="'+(dl?"On your download list — click to remove":"Add to your download list")+'" aria-pressed="'+dl+'" aria-label="Download list">'+ICON.down(dl)+'</button>'+
      '</div></div>'+
    (sp?'<div class="partbar"><i style="width:'+(part?part.pct:Math.min(100,Math.round(sp[0]*100/((+sp[1]||+e.dur||1)))))+'%"></i></div>':'')+
    '<div class="epsum">'+esc((e.desc||"No description.").replace(/\s*\n+\s*/g," "))+'</div>'+
@@ -1021,6 +1031,7 @@ function renderMe(){
   var secs=done.reduce(function(a,e){return a+(+e.dur||0);},0);
   var starred=all.filter(function(e){return prog.star[e.k];});
   var queued=all.filter(function(e){return prog.queue[e.k];});
+  var dls=all.filter(function(e){return prog.dl[e.k];});
   var parts=all.filter(function(e){return partOf(e.k);})
     .sort(function(a,b){return partOf(b.k).when-partOf(a.k).when;});
   var g=groupBy(all,function(e){return e.s;});
@@ -1036,6 +1047,7 @@ function renderMe(){
     '<div class="statcard"><b>'+parts.length+'</b><span>episodes part-heard</span></div>'+
     '<div class="statcard"><b>'+partial.length+'</b><span>series in progress</span></div>'+
     '<div class="statcard"><b>'+queued.length+'</b><span>in your queue</span></div>'+
+    '<div class="statcard"><b>'+dls.length+'</b><span>to download</span></div>'+
     '<div class="statcard"><b>'+starred.length+'</b><span>favourites</span></div></div>';
   if(!done.length&&!queued.length&&!starred.length){
     h+='<div class="empty">Nothing tracked yet. Use the circle to mark an episode listened, the star to '+
@@ -1054,6 +1066,15 @@ function renderMe(){
       /* count and colour cover the whole series; the body lists only the parts still to hear */
       return grpHTML("cont:"+x.name,x.name,rest.length+" still to hear",pbar(x.p),chronOrder(x.eps),listHTML(rest));
     }).join("");}
+  if(dls.length){
+    var dsecs=dls.reduce(function(a,e){return a+(+e.dur||0);},0);
+    h+='<h2 class="sec">To download</h2>'+
+       '<p class="hint">'+dls.length+' episode'+(dls.length>1?'s':'')+' · '+fmtHrs(dsecs)+'. Marks stay in this browser, so to work from '+
+       'your phone copy the link and open it there: it adds these to the phone’s list. Tap the podcast icon on each to open it in Apple Podcasts, '+
+       'download it, then tap ⇣ to take it off the list.</p>'+
+       '<div class="dlbar"><button class="ctl" id="dlLink">Copy link for your phone</button>'+
+       '<button class="ctl" id="dlShow">Show as a filtered list</button>'+
+       '<button class="ctl" id="dlClear">Clear the list</button></div>'+listHTML(chronOrder(dls));}
   if(queued.length){
     h+='<h2 class="sec">Your queue</h2>'+listHTML(sorted(queued));}
   if(starred.length){
@@ -1087,7 +1108,7 @@ function updateStatus(list){
 /* Marking one episode does not rebuild the view: it repaints that card wherever
    it appears, then the progress bars and counters. */
 function updateEpisodeCards(k){
-  var done=isDone(k),star=!!prog.star[k],q=!!prog.queue[k];
+  var done=isDone(k),star=!!prog.star[k],q=!!prog.queue[k],dl=!!prog.dl[k];
   var sel='.ep[data-k="'+(window.CSS&&CSS.escape?CSS.escape(k):k)+'"]';
   $$(sel).forEach(function(el){
     el.classList.toggle("done",done);
@@ -1098,7 +1119,8 @@ function updateEpisodeCards(k){
       b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.innerHTML=html;};
     set("listened",done,ICON.check(done));
     set("star",star,ICON.star(star));
-    set("queue",q,ICON.mark(q));});}
+    set("queue",q,ICON.mark(q));
+    set("dl",dl,ICON.down(dl));});}
 
 function refreshProgress(){
   $$("[data-grp]").forEach(function(el){
@@ -1135,6 +1157,10 @@ function render(){
     s.classList.toggle("active",on);
     if(!on&&s.innerHTML!=="")s.innerHTML="";});
   $$(".tab").forEach(function(t){t.setAttribute("aria-selected",t.dataset.view===v?"true":"false");});
+  /* keep the selected tab in sight when the tab bar scrolls sideways (phones) */
+  var tb=$(".tabs"),at=$('.tab[aria-selected="true"]');
+  if(tb&&at&&(at.offsetLeft<tb.scrollLeft||at.offsetLeft+at.offsetWidth>tb.scrollLeft+tb.clientWidth))
+    tb.scrollLeft=Math.max(0,at.offsetLeft-16);
   updateStats();}
 
 function updateStats(){
@@ -1209,7 +1235,21 @@ document.addEventListener("click",function(ev){
   if(t.closest("#mApple")){pickFile(".csv,text/csv",importApple);return;}
   if(t.closest("#mClear")){
     if(confirm("Clear all listened marks, favourites and queue from this browser?")){
-      prog={listened:{},star:{},queue:{},off:{}};saveProg();render();openModal(false);toast("Cleared");}
+      prog={listened:{},star:{},queue:{},off:{},dl:{}};saveProg();render();openModal(false);toast("Cleared");}
+    return;}
+
+  if(t.id==="dlLink"){
+    var keys=Object.keys(prog.dl);
+    var url=location.href.split("#")[0]+"#dl="+keys.join(".");
+    var ok=function(){toast("Link copied: "+keys.length+" episodes. Open it on your phone.");};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(ok,function(){window.prompt("Copy this link:",url);});
+    else window.prompt("Copy this link:",url);
+    return;}
+  if(t.id==="dlShow"){state.view="all";state.f.status={dl:1};syncChips();shown=PAGE;saveUI();render();
+    window.scrollTo({top:0,behavior:"instant"});return;}
+  if(t.id==="dlClear"){
+    if(confirm("Take all "+Object.keys(prog.dl).length+" episodes off your download list?")){
+      prog.dl={};saveProg();render();toast("Download list cleared");}
     return;}
 
   var gm=t.closest(".gmark");
@@ -1261,7 +1301,7 @@ document.addEventListener("click",function(ev){
   if(a==="play"){ep.classList.toggle("playing");
     var au=ep.querySelector("audio");if(au&&ep.classList.contains("playing"))au.play().catch(function(){});
     else if(au)au.pause();return;}
-  if(a==="listened"||a==="star"||a==="queue"){
+  if(a==="listened"||a==="star"||a==="queue"||a==="dl"){
     if(a==="listened"){setDone(k,!isDone(k));}
     else if(prog[a][k]){delete prog[a][k];}else{prog[a][k]=Date.now();}
     saveProg();
@@ -1320,7 +1360,7 @@ function exportBackup(){
 
 function restoreBackup(text){
   try{var o=JSON.parse(text);
-    ["listened","star","queue","off"].forEach(function(k){
+    ["listened","star","queue","off","dl"].forEach(function(k){
       Object.keys(o[k]||{}).forEach(function(id){prog[k][id]=o[k][id];});});
     saveProg();render();toast("Backup merged");
   }catch(e){toast("That file could not be read");}}
@@ -1482,6 +1522,19 @@ function loadSynced(){
         if(ok)render();});})
     .catch(function(){});}
 
+/* A link from another device carries a download list (#dl=key.key...): add it to this
+   browser's list and show it as a filtered page. Returns true when a list was applied. */
+function applyDlLink(){
+  var m=/[#&]dl=([^&]*)/.exec(location.hash);
+  if(!m)return false;
+  var add=decodeURIComponent(m[1]).split(".").filter(function(k){return BYKEY[k];}),fresh=0;
+  add.forEach(function(k){if(!prog.dl[k]){prog.dl[k]=Date.now();fresh++;}});
+  saveProg();
+  state.view="all";state.f.status={dl:1};syncChips();shown=PAGE;
+  try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
+  setTimeout(function(){toast(add.length+" episodes on your download list"+(fresh<add.length?" ("+fresh+" new)":""));},300);
+  return true;}
+
 /* ------------------------------------------------------------------ boot */
 var NATION_ALL=false,NATION_TOP=24;
 function nationChips(){
@@ -1527,6 +1580,8 @@ load.then(function(d){
     " · "+d.count+" episodes · "+Object.keys(ser).length+" series · "+d.strands.length+
     " story arcs · covering "+fmtYear(y0)+" to "+fmtYear(y1)+".";
   $("#sort").value=state.sort;
+  applyDlLink();
+  window.addEventListener("hashchange",function(){if(applyDlLink())render();});
   render();
   loadSynced();
 }).catch(function(err){
